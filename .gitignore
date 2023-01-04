@@ -1,0 +1,11 @@
+.idea/
+
+*.exe
+*.exe~
+*.log
+*.sum
+*.http
+*.dat
+
+# macos
+.DS_Store

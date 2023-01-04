@@ -1,0 +1,1 @@
+go test -v -cover log/logger_test.go log/logger.go
