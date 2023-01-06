@@ -3,6 +3,7 @@ module github.com/mangenotwork/common
 go 1.19
 
 require (
+	github.com/garyburd/redigo v1.6.4
 	github.com/gin-gonic/gin v1.8.2
 	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3
 	golang.org/x/net v0.4.0

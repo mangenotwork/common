@@ -83,9 +83,10 @@ type UdpClient struct {
 
 // Redis redis配置
 type Redis struct {
+	Name      string `yaml:"name"` // 自定义一个昵称
 	Host      string `yaml:"host"`
 	Port      string `yaml:"port"`
-	DB        int    `yaml:"db"`
+	DB        string `yaml:"db"`
 	Password  string `yaml:"password"`
 	MaxIdle   int    `yaml:"maxIdle"`
 	MaxActive int    `yaml:"maxActive"`
