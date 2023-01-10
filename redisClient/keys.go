@@ -39,7 +39,7 @@ func (c *RedisClient) GetALLKeys(match string) (ksyList map[string]int) {
 func (c *RedisClient) addGetKey(ksyList map[string]int, cursor, match, matchSplit string) (map[string]int, string) {
 	countNumber := "10000"
 	res, err := redis.Values(c.Conn.Do("scan", cursor, "MATCH", match, "COUNT", countNumber))
-	log.InfoTimes(3, "[Redis Log] execute :", "scan", cursor, "MATCH", match, "COUNT", countNumber)
+	log.InfoTimes(3, "[Redis Log] execute :", "scan ", cursor, " MATCH ", match, " COUNT ", countNumber)
 	if err != nil {
 		log.Error("GET error", err.Error())
 	}
@@ -106,7 +106,7 @@ func (c *RedisClient) SearchKeys(match string) (ksyList map[string]int) {
 func (c *RedisClient) addSearchKey(ksyList map[string]int, cursor, match string) (map[string]int, string) {
 	countNumber := "10000"
 	res, err := redis.Values(c.Conn.Do("scan", cursor, "MATCH", match, "COUNT", countNumber))
-	log.InfoTimes(3, "[Redis Log] execute :", "scan", cursor, "MATCH", match, "COUNT", countNumber)
+	log.InfoTimes(3, "[Redis Log] execute :", "scan ", cursor, " MATCH ", match, " COUNT ", countNumber)
 	if err != nil {
 		log.Error("GET error", err.Error())
 	}
@@ -124,7 +124,7 @@ func (c *RedisClient) addSearchKey(ksyList map[string]int, cursor, match string)
 
 // GetKeyType 获取key的类型
 func (c *RedisClient) GetKeyType(key string) string {
-	log.InfoTimes(3, "[Redis Log] execute :", "TYPE", key)
+	log.InfoTimes(3, "[Redis Log] execute :", "TYPE ", key)
 	res, err := redis.String(c.Conn.Do("TYPE", key))
 	if err != nil {
 		fmt.Println("GET error", err.Error())

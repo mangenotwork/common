@@ -24,6 +24,7 @@ func InitMysqlGorm() {
 		}
 		MysqlGorm[v.DBName] = m
 	}
+	log.Print("连接Redis : ", MysqlGorm)
 }
 
 // NewORM  连接 orm

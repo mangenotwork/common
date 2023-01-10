@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 )
 
-var Conf *Configs
+var Conf *Configs = &Configs{}
 
 type Configs struct {
 	App        *App        `yaml:"app"`
@@ -165,7 +165,7 @@ func InitConf(path string) {
 	}
 	appConfigPath := filepath.Join(workPath, path, confFileName)
 	if !utils.FileExists(appConfigPath) {
-		panic("【启动失败】 未找到配置文件!")
+		panic("【启动失败】 未找到配置文件!" + appConfigPath)
 	}
 	log.Print("[启动]读取配置文件:", appConfigPath)
 	//读取yaml文件到缓存中

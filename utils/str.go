@@ -576,3 +576,8 @@ func FileExists(name string) bool {
 	}
 	return true
 }
+
+func Md5Uppercase(str string) string {
+	s := GetMD5Encode(str)
+	return strings.ToUpper(s)
+}
