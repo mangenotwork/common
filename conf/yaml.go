@@ -188,7 +188,7 @@ func InitConf(path string) {
 	}
 }
 
-var Config *conf
+var Config = &conf{}
 
 type conf struct {
 	Path string
