@@ -36,7 +36,7 @@ type Mysql struct {
 	maxIdleConn int
 	DB          *sql.DB
 	log         bool
-	tableTemp   map[string]*tableDescribe //表结构缓存
+	tableTemp   map[string]*TableDescribe //表结构缓存
 	once        *sync.Once
 	allTN       *allTableName // 所有表名
 }
@@ -70,7 +70,7 @@ func NewMysql(host, port, user, password, database string) (*Mysql, error) {
 		once:        &sync.Once{},
 	}
 	m.once.Do(func() {
-		m.tableTemp = make(map[string]*tableDescribe)
+		m.tableTemp = make(map[string]*TableDescribe)
 	})
 	return m, nil
 }
@@ -162,7 +162,7 @@ type TableInfo struct {
 	Extra   string
 }
 
-type tableDescribe struct {
+type TableDescribe struct {
 	Base map[string]string
 }
 
@@ -205,7 +205,7 @@ func (a *allTableName) isHave(name string) bool {
 }
 
 // Describe 获取表结构
-func (m *Mysql) Describe(table string) (*tableDescribe, error) {
+func (m *Mysql) Describe(table string) (*TableDescribe, error) {
 	if m.DB == nil {
 		_ = m.Conn()
 	}
@@ -215,12 +215,12 @@ func (m *Mysql) Describe(table string) (*tableDescribe, error) {
 	}
 
 	if table == "" {
-		return &tableDescribe{}, TABLE_NAME_NULL
+		return &TableDescribe{}, TABLE_NAME_NULL
 	}
 
 	rows, err := m.DB.Query("DESCRIBE " + table)
 	if err != nil {
-		return &tableDescribe{}, err
+		return &TableDescribe{}, err
 	}
 
 	fieldMap := make(map[string]string, 0)
@@ -247,7 +247,7 @@ func (m *Mysql) Describe(table string) (*tableDescribe, error) {
 	}
 
 	_ = rows.Close()
-	td := &tableDescribe{
+	td := &TableDescribe{
 		Base: fieldMap,
 	}
 
@@ -574,7 +574,6 @@ func (m *Mysql) Exec(sql string) error {
 	if m.DB == nil {
 		_ = m.Conn()
 	}
-
 	_, err := m.DB.Exec(sql)
 	if m.log {
 		log.Info("[Sql] Exec : " + sql)
