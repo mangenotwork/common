@@ -9,6 +9,8 @@ require (
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/jinzhu/gorm v1.9.16
 	github.com/mojocn/base64Captcha v1.3.5
+	github.com/nsqio/go-nsq v1.1.0
+	github.com/streadway/amqp v1.0.0
 	github.com/xuri/excelize/v2 v2.7.0
 	golang.org/x/crypto v0.5.0
 	golang.org/x/net v0.5.0
@@ -26,6 +28,7 @@ require (
 	github.com/goccy/go-json v0.9.11 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/golang/snappy v0.0.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect

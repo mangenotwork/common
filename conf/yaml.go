@@ -33,6 +33,7 @@ type Configs struct {
 	LogCentre  *LogCentre  `yaml:"logCentre"`
 	Jwt        *Jwt        `yaml:"jwt"`
 	Minio      *Minio      `yaml:"minio"`
+	Mq         string      `yaml:"mq"`
 }
 
 // App app相关基础信息
