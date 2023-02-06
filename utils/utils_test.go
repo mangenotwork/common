@@ -18,7 +18,6 @@ func Test_charset(t *testing.T) {
 	c := ConvertStrToGBK("阿萨声卡十分罕见卡所发海军")
 	log.Print(c)
 	log.Print(ConvertGBKToStr(c))
-
 }
 
 // go test -benchmem -bench=charset

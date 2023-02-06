@@ -13,10 +13,12 @@ import (
 	"crypto/sha512"
 	"encoding/base64"
 	"errors"
-	"github.com/mangenotwork/common/log"
-	"golang.org/x/crypto/pbkdf2"
 	"hash"
 	"io"
+
+	"github.com/mangenotwork/common/log"
+
+	"golang.org/x/crypto/pbkdf2"
 )
 
 const (

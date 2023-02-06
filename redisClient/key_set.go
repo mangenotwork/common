@@ -1,10 +1,12 @@
 package redisClient
 
 import (
-	"github.com/garyburd/redigo/redis"
+	"strings"
+
 	"github.com/mangenotwork/common/log"
 	"github.com/mangenotwork/common/utils"
-	"strings"
+
+	"github.com/garyburd/redigo/redis"
 )
 
 // SetSMEMBERS SMEMBERS key
@@ -219,4 +221,4 @@ func (c *RedisClient) SetSUNIONSTORE(key string, keys []string) ([]interface{}, 
 	return redis.Values(c.Conn.Do("SUNIONSTORE", args))
 }
 
-//搜索值  SSCAN key cursor [MATCH pattern] [COUNT count]
+// 搜索值  SSCAN key cursor [MATCH pattern] [COUNT count]

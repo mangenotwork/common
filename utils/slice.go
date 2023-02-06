@@ -372,3 +372,21 @@ func (sliceTool) ShuffleInt(a []int) []int {
 	})
 	return a
 }
+
+// RemoveRepeatedElementInt64 对int64的切片去重
+func RemoveRepeatedElementInt64(arr []int64) (newArr []int64) {
+	newArr = make([]int64, 0)
+	for i := 0; i < len(arr); i++ {
+		repeat := false
+		for j := i + 1; j < len(arr); j++ {
+			if arr[i] == arr[j] {
+				repeat = true
+				break
+			}
+		}
+		if !repeat {
+			newArr = append(newArr, arr[i])
+		}
+	}
+	return
+}

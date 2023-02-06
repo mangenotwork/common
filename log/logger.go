@@ -113,12 +113,10 @@ func (l *logger) Log(level Level, args string, times int) {
 	if l.terminal {
 		_, _ = buffer.WriteTo(os.Stdout)
 	}
-
 	// 输出到文件或远程日志服务
 	if l.outFile {
 		_, _ = l.outFileWriter.Write(out)
 	}
-
 	if l.outService {
 		for _, v := range l.outServiceLevel {
 			if Level(v) == level {
@@ -127,7 +125,6 @@ func (l *logger) Log(level Level, args string, times int) {
 			}
 		}
 	}
-
 }
 
 func Print(args ...interface{}) {

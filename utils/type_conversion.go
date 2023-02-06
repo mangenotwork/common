@@ -5,7 +5,6 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
-	"golang.org/x/text/encoding/simplifiedchinese"
 	"math"
 	"reflect"
 	"strconv"
@@ -13,6 +12,8 @@ import (
 	"unsafe"
 
 	"github.com/mangenotwork/common/log"
+
+	"golang.org/x/text/encoding/simplifiedchinese"
 )
 
 // 类型转换
@@ -395,12 +396,10 @@ func StructToMap(obj interface{}) map[string]interface{} {
 	out := make(map[string]interface{}, rt.NumField())
 	for i := 0; i < rt.NumField(); i++ {
 		field := rt.Field(i)
-
 		// Unexported fields, access not allowed
 		if field.PkgPath != "" {
 			continue
 		}
-
 		var fieldName string
 		if tagVal, ok := field.Tag.Lookup("json"); ok {
 			// Honor the special "-" in json attribute
@@ -411,7 +410,6 @@ func StructToMap(obj interface{}) map[string]interface{} {
 		} else {
 			fieldName = field.Name
 		}
-
 		val := valueToInterface(rv.Field(i))
 		if val != nil {
 			out[fieldName] = val
@@ -424,7 +422,6 @@ func valueToInterface(value reflect.Value) interface{} {
 	if !value.IsValid() {
 		return nil
 	}
-
 	switch value.Type().Kind() {
 	case reflect.Struct:
 		return StructToMap(value.Interface())
@@ -582,7 +579,6 @@ func StructToMapV2(obj interface{}, hasValue bool) (map[string]interface{}, erro
 			return mp, fmt.Errorf("数据类型不匹配")
 		}
 	}
-
 	return mp, nil
 }
 
@@ -604,7 +600,6 @@ func PanicToError(fn func()) (err error) {
 			err = fmt.Errorf("Panic error: %v", r)
 		}
 	}()
-
 	fn()
 	return
 }

@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"time"
 
-	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go"
 )
 
 type JWT struct {

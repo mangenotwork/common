@@ -1,12 +1,17 @@
 package ginHelper
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 type HandlerFunc func(c *GinCtx)
+
+/*
+r.GET("/test", ginHelper.Handle(controllers.Test))
+*/
 
 func Handle(h HandlerFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -16,10 +21,6 @@ func Handle(h HandlerFunc) gin.HandlerFunc {
 		h(ctx)
 	}
 }
-
-/*
- r.GET("/test", ginHelper.Handle(controllers.Test))
-*/
 
 // GinCtx 给gin context 扩展方法
 type GinCtx struct {

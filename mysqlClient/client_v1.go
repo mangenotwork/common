@@ -18,9 +18,9 @@ import (
 )
 
 var (
-	SHOW_TABLES     = "SHOW TABLES"
-	TABLE_NAME_NULL = fmt.Errorf("Table name is null.")
-	TABLE_IS_NULL   = fmt.Errorf("Table is null.")
+	SqlShowTables    = "SHOW TABLES"
+	ErrTableNameNull = fmt.Errorf("err: table name is null.")
+	ErrTableIsNull   = fmt.Errorf("err: table is null.")
 )
 
 var MysqlDB = &Mysql{}
@@ -108,15 +108,12 @@ func (m *Mysql) Conn() (err error) {
 		return err
 	}
 	m.DB.SetConnMaxLifetime(time.Hour) //最大连接周期，超过时间的连接就close
-
 	if m.maxOpenConn < 1 {
 		m.maxOpenConn = 10
 	}
-
 	if m.maxIdleConn < 1 {
 		m.maxIdleConn = 5
 	}
-
 	m.DB.SetMaxOpenConns(m.maxOpenConn) //设置最大连接数
 	m.DB.SetMaxIdleConns(m.maxIdleConn) //设置闲置连接数
 	return
@@ -127,19 +124,16 @@ func (m *Mysql) allTableName() (err error) {
 	if m.DB == nil {
 		_ = m.Conn()
 	}
-
 	m.allTN = newAllTableName()
-	rows, err := m.DB.Query(SHOW_TABLES)
+	rows, err := m.DB.Query(SqlShowTables)
 	if err != nil {
 		return
 	}
-
 	for rows.Next() {
 		var result string
 		err = rows.Scan(&result)
 		m.allTN.add(result)
 	}
-
 	_ = rows.Close()
 	return
 }
@@ -209,20 +203,16 @@ func (m *Mysql) Describe(table string) (*TableDescribe, error) {
 	if m.DB == nil {
 		_ = m.Conn()
 	}
-
 	if v, ok := m.tableTemp[table]; ok {
 		return v, nil
 	}
-
 	if table == "" {
-		return &TableDescribe{}, TABLE_NAME_NULL
+		return &TableDescribe{}, ErrTableNameNull
 	}
-
 	rows, err := m.DB.Query("DESCRIBE " + table)
 	if err != nil {
 		return &TableDescribe{}, err
 	}
-
 	fieldMap := make(map[string]string, 0)
 	for rows.Next() {
 		result := &TableInfo{}
@@ -245,12 +235,10 @@ func (m *Mysql) Describe(table string) (*TableDescribe, error) {
 		}
 		fieldMap[result.Field] = fiedlType
 	}
-
 	_ = rows.Close()
 	td := &TableDescribe{
 		Base: fieldMap,
 	}
-
 	// 缓存
 	m.tableTemp[table] = td
 	return td, nil
@@ -261,7 +249,6 @@ func (m *Mysql) Select(sql string) ([]map[string]string, error) {
 	if m.DB == nil {
 		_ = m.Conn()
 	}
-
 	rows, err := m.DB.Query(sql)
 	if m.log {
 		log.Info("[Sql] Exec : " + sql)
@@ -269,23 +256,19 @@ func (m *Mysql) Select(sql string) ([]map[string]string, error) {
 			log.Error("[Sql] Error : " + err.Error())
 		}
 	}
-
 	if err != nil {
 		return nil, err
 	}
-
 	columns, err := rows.Columns()
 	if err != nil {
 		return nil, err
 	}
-
 	columnLength := len(columns)
 	cache := make([]interface{}, columnLength) //临时存储每行数据
 	for index, _ := range cache {              //为每一列初始化一个指针
 		var a interface{}
 		cache[index] = &a
 	}
-
 	var list []map[string]string //返回的切片
 	for rows.Next() {
 		_ = rows.Scan(cache...)
@@ -300,7 +283,6 @@ func (m *Mysql) Select(sql string) ([]map[string]string, error) {
 		}
 		list = append(list, item)
 	}
-
 	_ = rows.Close()
 	return list, nil
 }
@@ -325,19 +307,15 @@ func (m *Mysql) NewTable(table string, fields map[string]string) error {
 		createSql bytes.Buffer
 		line      = len(fields)
 	)
-
 	if table == "" {
-		return TABLE_IS_NULL
+		return ErrTableIsNull
 	}
-
 	if line < 1 {
 		return fmt.Errorf("fiedls len is 0")
 	}
-
 	if m.DB == nil {
 		_ = m.Conn()
 	}
-
 	createSql.WriteString("CREATE TABLE ")
 	createSql.WriteString(table)
 	createSql.WriteString(" ( temp_id int(11) NOT NULL AUTO_INCREMENT, ")
@@ -347,7 +325,6 @@ func (m *Mysql) NewTable(table string, fields map[string]string) error {
 		createSql.WriteString(v)
 		createSql.WriteString(", ")
 	}
-
 	createSql.WriteString("PRIMARY KEY (temp_id) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;")
 	_, err := m.DB.Exec(createSql.String())
 	if m.log {
@@ -356,11 +333,9 @@ func (m *Mysql) NewTable(table string, fields map[string]string) error {
 			log.Error("[Sql] Error : " + err.Error())
 		}
 	}
-
 	if m.allTN == nil {
 		_ = m.allTableName()
 	}
-
 	m.allTN.add(table)
 	return nil
 }
@@ -371,19 +346,15 @@ func (m *Mysql) NewTableGd(table string, fields *utils.GDMap) error {
 		createSql bytes.Buffer
 		line      = fields.Len()
 	)
-
 	if table == "" {
-		return TABLE_IS_NULL
+		return ErrTableIsNull
 	}
-
 	if line < 1 {
 		return fmt.Errorf("fiedls len is 0")
 	}
-
 	if m.DB == nil {
 		_ = m.Conn()
 	}
-
 	createSql.WriteString("CREATE TABLE ")
 	createSql.WriteString(table)
 	createSql.WriteString(" ( temp_id int(11) NOT NULL AUTO_INCREMENT, ")
@@ -393,7 +364,6 @@ func (m *Mysql) NewTableGd(table string, fields *utils.GDMap) error {
 		createSql.WriteString(dataType2Mysql(v))
 		createSql.WriteString(", ")
 	})
-
 	createSql.WriteString("PRIMARY KEY (temp_id) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;")
 	_, err := m.DB.Exec(createSql.String())
 	if m.log {
@@ -402,11 +372,9 @@ func (m *Mysql) NewTableGd(table string, fields *utils.GDMap) error {
 			log.Error("[Sql] Error : " + err.Error())
 		}
 	}
-
 	if m.allTN == nil {
 		_ = m.allTableName()
 	}
-
 	m.allTN.add(table)
 	return nil
 }
@@ -455,7 +423,7 @@ func (m *Mysql) Insert(table string, fieldData map[string]interface{}) error {
 	var line = len(fieldData)
 
 	if table == "" {
-		return TABLE_IS_NULL
+		return ErrTableIsNull
 	}
 
 	if line < 1 {
@@ -481,7 +449,7 @@ func (m *Mysql) InsertAt(table string, fieldData map[string]interface{}) error {
 	var line = len(fieldData)
 
 	if table == "" {
-		return TABLE_IS_NULL
+		return ErrTableIsNull
 	}
 
 	if line < 1 {
@@ -518,7 +486,7 @@ func (m *Mysql) InsertAtGd(table string, fieldData *utils.GDMap) error {
 	)
 
 	if table == "" {
-		return TABLE_IS_NULL
+		return ErrTableIsNull
 	}
 
 	if line < 1 {
@@ -584,12 +552,11 @@ func (m *Mysql) Exec(sql string) error {
 	return err
 }
 
-// Query 执行selete sql
+// Query 执行 select sql
 func (m *Mysql) Query(sql string) ([]map[string]string, error) {
 	if m.DB == nil {
 		_ = m.Conn()
 	}
-
 	rows, err := m.DB.Query(sql)
 	if m.log {
 		log.Info("[Sql] Exec : " + sql)

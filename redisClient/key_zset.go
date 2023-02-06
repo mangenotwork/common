@@ -2,10 +2,12 @@ package redisClient
 
 import (
 	"fmt"
-	"github.com/garyburd/redigo/redis"
+	"strings"
+
 	"github.com/mangenotwork/common/log"
 	"github.com/mangenotwork/common/utils"
-	"strings"
+
+	"github.com/garyburd/redigo/redis"
 )
 
 // ZSetZRANGEALL ZRANGE 获取ZSet value 返回集合 有序集成员的列表。
@@ -219,4 +221,4 @@ func (c *RedisClient) ZSetZUNIONSTORE() {}
 // 默认情况下，结果集中某个成员的 score 值是所有给定集下该成员 score 值之和.
 func (c *RedisClient) ZSetZINTERSTORE() {}
 
-//搜索值  ZSCAN key cursor [MATCH pattern] [COUNT count]
+// 搜索值  ZSCAN key cursor [MATCH pattern] [COUNT count]

@@ -1,10 +1,12 @@
 package redisClient
 
 import (
-	"github.com/garyburd/redigo/redis"
+	"strings"
+
 	"github.com/mangenotwork/common/log"
 	"github.com/mangenotwork/common/utils"
-	"strings"
+
+	"github.com/garyburd/redigo/redis"
 )
 
 // ListLRANGEALL LRANGE 获取List value

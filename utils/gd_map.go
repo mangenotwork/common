@@ -4,8 +4,8 @@ import (
 	"sync"
 )
 
-// GDMapApi 固定顺序 Map 接口
-type GDMapApi interface {
+// GDMaper 固定顺序 Map 接口
+type GDMaper interface {
 	Add(key string, value interface{}) *GDMap
 	Get(key string) interface{}
 	Del(key string) *GDMap

@@ -2,11 +2,13 @@ package redisClient
 
 import (
 	"fmt"
-	"github.com/garyburd/redigo/redis"
+	"net"
+
 	"github.com/mangenotwork/common/conf"
 	"github.com/mangenotwork/common/log"
+
+	"github.com/garyburd/redigo/redis"
 	"golang.org/x/crypto/ssh"
-	"net"
 )
 
 var NotConnError = fmt.Errorf("未连接redis")

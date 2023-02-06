@@ -5,10 +5,10 @@ import (
 	"log"
 	"time"
 
+	"github.com/mangenotwork/common/conf"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
-
-	"github.com/mangenotwork/common/conf"
 )
 
 var MysqlGorm map[string]*gorm.DB
@@ -36,7 +36,6 @@ func NewORM(database, user, password, host, port string, disablePrepared bool) (
 	if database == "" || user == "" || password == "" || host == "" {
 		panic("数据库配置信息获取失败")
 	}
-
 	str := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, password, host, port, database) + "?charset=utf8mb4&parseTime=true&loc=Local"
 	if disablePrepared {
 		str = str + "&interpolateParams=true"

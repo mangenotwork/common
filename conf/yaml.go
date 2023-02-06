@@ -2,12 +2,14 @@ package conf
 
 import (
 	"fmt"
-	"github.com/mangenotwork/common/log"
-	"github.com/mangenotwork/common/utils"
-	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"github.com/mangenotwork/common/log"
+	"github.com/mangenotwork/common/utils"
+
+	"gopkg.in/yaml.v3"
 )
 
 var Conf *Configs = &Configs{}

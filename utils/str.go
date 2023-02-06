@@ -9,15 +9,19 @@ import (
 	"encoding/gob"
 	"encoding/hex"
 	"fmt"
-	"github.com/mangenotwork/common/log"
 	"io"
 	"io/ioutil"
+	"math/rand"
 	"os"
 	"path"
 	"path/filepath"
+	"reflect"
 	"runtime"
 	"strings"
+	"time"
 	"unicode/utf8"
+
+	"github.com/mangenotwork/common/log"
 )
 
 // 字符串相关
@@ -170,7 +174,9 @@ func FileMd5sum(fileName string) string {
 		log.Error(fileName, err)
 		return ""
 	}
-	defer fin.Close()
+	defer func() {
+		_ = fin.Close()
+	}()
 	buf, bufErr := ioutil.ReadFile(fileName)
 	if bufErr != nil {
 		log.Error(fileName, bufErr)
@@ -225,15 +231,6 @@ func IsDir(path string) bool {
 		return false
 	}
 	return s.IsDir()
-}
-
-// Pwd 当前路径
-func Pwd() string {
-	path, err := os.Getwd()
-	if err != nil {
-		return ""
-	}
-	return path
 }
 
 // IsFile 是否是文件
@@ -580,4 +577,41 @@ func FileExists(name string) bool {
 func Md5Uppercase(str string) string {
 	s := GetMD5Encode(str)
 	return strings.ToUpper(s)
+}
+
+// picSuffix 图片文件后缀
+var picSuffix = []string{".png", ".jpg", ".gif", ".jpeg", "svg", "bmp"}
+
+// IsPic 判断是否是图片
+func IsPic(suffix string) bool {
+	for _, su := range picSuffix {
+		suffix = strings.ToLower(suffix)
+		if su == suffix {
+			return true
+		}
+	}
+	return false
+}
+
+// RandomIntCaptcha 生成 captchaLen 位随机数，理论上会重复
+func RandomIntCaptcha(captchaLen int) string {
+	var arr string
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	for i := 0; i < captchaLen; i++ {
+		arr = arr + fmt.Sprintf("%d", r.Intn(10))
+	}
+	return arr
+}
+
+// DeepEqual 深度比较任意类型的两个变量的是否相等,类型一样值一样反回true
+// 如果元素都是nil，且类型相同，则它们是相等的; 如果它们是不同的类型，它们是不相等的
+func DeepEqual(a, b interface{}) bool {
+	ra := reflect.Indirect(reflect.ValueOf(a))
+	rb := reflect.Indirect(reflect.ValueOf(b))
+	if raValid, rbValid := ra.IsValid(), rb.IsValid(); !raValid && !rbValid {
+		return reflect.TypeOf(a) == reflect.TypeOf(b)
+	} else if raValid != rbValid {
+		return false
+	}
+	return reflect.DeepEqual(ra.Interface(), rb.Interface())
 }

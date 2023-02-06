@@ -1,9 +1,10 @@
 package captcha
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/mangenotwork/common/ginHelper"
 	"github.com/mangenotwork/common/utils"
+
+	"github.com/gin-gonic/gin"
 	"github.com/mojocn/base64Captcha"
 )
 

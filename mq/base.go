@@ -2,8 +2,10 @@ package mq
 
 import (
 	"fmt"
+
 	"github.com/mangenotwork/common/conf"
 	"github.com/mangenotwork/common/log"
+
 	"github.com/nsqio/go-nsq"
 	"github.com/streadway/amqp"
 )
@@ -12,14 +14,14 @@ var (
 	nsqServer = conf.Conf.Nsq.Producer // nsqServer
 )
 
-// MQInterface 消息队列接口
-type MQInterface interface {
+// MQer 消息队列接口
+type MQer interface {
 	Producer(topic string, data []byte)
 	Consumer(topic, channel string, ch chan []byte, f func(b []byte))
 }
 
 // NewMQ 实例化消息队列对象
-func NewMQ() MQInterface {
+func NewMQ() MQer {
 	switch conf.Conf.Mq { // mq 设置的类型
 	case "nsq":
 		return new(MQNsqService)
@@ -61,7 +63,6 @@ func (m *MQRabbitService) Producer(topic string, data []byte) {
 		return
 	}
 	//defer mq.Destroy()
-
 	log.DebugF(fmt.Sprintf("[生产消息] topic : %s -->  %s", topic, string(data)))
 	err = mq.PublishPub(data)
 	if err != nil {
@@ -90,7 +91,6 @@ func (m *MQNsqService) Consumer(topic, channel string, ch chan []byte, f func(b 
 			}
 		}
 	}()
-
 	log.DebugF("[NSQ] ServerID:%v => %v started", channel, topic)
 }
 
@@ -102,7 +102,6 @@ func (m *MQRabbitService) Consumer(topic, serverId string, ch chan []byte, f fun
 		return
 	}
 	msg := mh.RegistryReceiveSub()
-
 	go func(m <-chan amqp.Delivery) {
 		for {
 			select {
@@ -111,6 +110,5 @@ func (m *MQRabbitService) Consumer(topic, serverId string, ch chan []byte, f fun
 			}
 		}
 	}(msg)
-
 	log.DebugF("[Rabbit] ServerID:%v => %v started", serverId, topic)
 }

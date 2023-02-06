@@ -2,9 +2,11 @@ package redisClient
 
 import (
 	"fmt"
-	"github.com/garyburd/redigo/redis"
-	"github.com/mangenotwork/common/log"
 	"strings"
+
+	"github.com/mangenotwork/common/log"
+
+	"github.com/garyburd/redigo/redis"
 )
 
 // GetALLKeys 获取所有的key
@@ -57,14 +59,14 @@ func (c *RedisClient) addGetKey(ksyList map[string]int, cursor, match, matchSpli
 			continue
 		}
 		//有:需要集合
-		keyDataNew, _ := fenGeYinghaoOne(keyData, matchSplit)
+		keyDataNew, _ := fenGeYinHaoOne(keyData, matchSplit)
 		ksyList[keyDataNew] = ksyList[keyDataNew] + 1
 	}
 	return ksyList, newCursor
 }
 
-// fenGeYinghaoOne 对查询出来的key进行拆分，集合，分组处理
-func fenGeYinghaoOne(str string, matchSplit string) (string, int) {
+// fenGeYinHaoOne 对查询出来的key进行拆分，集合，分组处理
+func fenGeYinHaoOne(str string, matchSplit string) (string, int) {
 	likeKey := ""
 	if matchSplit != "" {
 		likeKey = fmt.Sprintf("%s", matchSplit)
@@ -84,11 +86,9 @@ func (c *RedisClient) SearchKeys(match string) (ksyList map[string]int) {
 	} else {
 		match = fmt.Sprintf("*%s*", match)
 	}
-
 	cursor := "0"
 	ksyList = make(map[string]int)
 	ksyList, cursor = c.addSearchKey(ksyList, cursor, match)
-
 	//当游标等于0的时候停止获取key
 	//线性获取，一直循环获取key,直到游标为0
 	if cursor != "0" {
@@ -110,7 +110,6 @@ func (c *RedisClient) addSearchKey(ksyList map[string]int, cursor, match string)
 	if err != nil {
 		log.Error("GET error", err.Error())
 	}
-
 	//获取新的游标
 	newCursor := string(res[0].([]byte))
 	allKey := res[1]
@@ -127,9 +126,8 @@ func (c *RedisClient) GetKeyType(key string) string {
 	log.InfoTimes(3, "[Redis Log] execute :", "TYPE ", key)
 	res, err := redis.String(c.Conn.Do("TYPE", key))
 	if err != nil {
-		fmt.Println("GET error", err.Error())
+		log.ErrorTimes(3, "GET error", err.Error())
 	}
-	fmt.Println(res)
 	return res
 }
 

@@ -2,7 +2,9 @@ package mq
 
 import (
 	"fmt"
+
 	"github.com/mangenotwork/common/log"
+
 	"github.com/streadway/amqp"
 )
 
@@ -144,14 +146,12 @@ func NewRabbitMQPubSub(exchangeName string) (*RabbitMQ, error) {
 	if mq == nil || err != nil {
 		return nil, err
 	}
-
 	//获取connection
 	mq.conn, err = amqp.Dial(mq.MqUrl)
 	mq.failOnErr(err, "failed to connect mq!")
 	if mq.conn == nil || err != nil {
 		return nil, err
 	}
-
 	//获取channel
 	mq.channel, err = mq.conn.Channel()
 	mq.failOnErr(err, "failed to open a channel!")
@@ -178,7 +178,6 @@ func (r *RabbitMQ) PublishPub(message []byte) (err error) {
 		nil,
 	)
 	r.failOnErr(err, "failed to declare an exchange"+"nge")
-
 	//2 发送消息
 	err = r.channel.Publish(
 		r.Exchange,
@@ -213,7 +212,7 @@ func (r *RabbitMQ) RegistryReceiveSub() (msg <-chan amqp.Delivery) {
 		nil,
 	)
 	r.failOnErr(err, "failed to declare an exchange")
-	//2试探性创建队列，创建队列
+	//2. 试探性创建队列，创建队列
 	q, err := r.channel.QueueDeclare(
 		"", //随机生产队列名称
 		false,
@@ -292,10 +291,9 @@ func (r *RabbitMQ) PublishTopic(message []byte) (err error) {
 }
 
 // RegistryReceiveTopic 话题模式接收信息
-//
-//	要注意key
-//	其中* 用于匹配一个单词，#用于匹配多个单词（可以是零个）
-//	匹配 xx.* 表示匹配xx.hello,但是xx.hello.one需要用xx.#才能匹配到
+// 要注意key
+// 其中* 用于匹配一个单词，#用于匹配多个单词（可以是零个）
+// 匹配 xx.* 表示匹配xx.hello,但是xx.hello.one需要用xx.#才能匹配到
 func (r *RabbitMQ) RegistryReceiveTopic() (msg <-chan amqp.Delivery) {
 	//尝试创建交换机，不存在创建
 	err := r.channel.ExchangeDeclare(
@@ -314,7 +312,7 @@ func (r *RabbitMQ) RegistryReceiveTopic() (msg <-chan amqp.Delivery) {
 		nil,
 	)
 	r.failOnErr(err, "failed to declare an exchange")
-	//2试探性创建队列，创建队列
+	//2. 试探性创建队列，创建队列
 	q, err := r.channel.QueueDeclare(
 		"", //随机生产队列名称
 		false,

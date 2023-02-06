@@ -2,6 +2,7 @@ package mq
 
 import (
 	"fmt"
+
 	goNsq "github.com/nsqio/go-nsq"
 )
 
@@ -20,7 +21,6 @@ func NewProducer(addr string) (producer *Producer, err error) {
 		return
 	}
 	p.SetLogger(nil, 0)
-
 	producer = &Producer{
 		P: p,
 	}
@@ -60,7 +60,6 @@ func NewMessageHandler(nsqServer string, channel string) (mh *MessageHandler, er
 		nsqServer: nsqServer,
 		Channel:   channel,
 	}
-
 	return
 }
 
@@ -86,7 +85,6 @@ func (m *MessageHandler) Registry(topic string, ch chan []byte) {
 		panic(err)
 	}
 	m.process(ch)
-
 }
 
 func (m *MessageHandler) process(ch chan<- []byte) {
