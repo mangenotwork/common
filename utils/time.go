@@ -286,3 +286,47 @@ func IsTodayList(timestamp int64, nowTime time.Time) string {
 	}
 	return t.Format(timeFormatList)
 }
+
+func Timestamp2Week(timestamp int64) string {
+	tm := time.Unix(timestamp, 0)
+	tm.Weekday()
+	switch tm.Weekday() {
+	case time.Sunday:
+		return "周天"
+	case time.Monday:
+		return "周一"
+	case time.Tuesday:
+		return "周二"
+	case time.Wednesday:
+		return "周三"
+	case time.Thursday:
+		return "周四"
+	case time.Friday:
+		return "周五"
+	case time.Saturday:
+		return "周六"
+	}
+	return "周一"
+}
+
+func Timestamp2WeekXinQi(timestamp int64) string {
+	tm := time.Unix(timestamp, 0)
+	tm.Weekday()
+	switch tm.Weekday() {
+	case time.Sunday:
+		return "星期天"
+	case time.Monday:
+		return "星期一"
+	case time.Tuesday:
+		return "星期二"
+	case time.Wednesday:
+		return "星期三"
+	case time.Thursday:
+		return "星期四"
+	case time.Friday:
+		return "星期五"
+	case time.Saturday:
+		return "星期六"
+	}
+	return "星期一"
+}

@@ -10,6 +10,7 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/mojocn/base64Captcha v1.3.5
 	github.com/nsqio/go-nsq v1.1.0
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/streadway/amqp v1.0.0
 	github.com/xuri/excelize/v2 v2.7.0
 	golang.org/x/crypto v0.5.0
