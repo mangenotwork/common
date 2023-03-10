@@ -33,9 +33,12 @@
 
 
 # Task
-- 导入 gopkg.in/ini.v1 做ini配置文件读取，同步 yaml接口
 - 使用 golang.org/x/time/rate 做限流中间件
-
+- 对象存储 阿里，腾讯，minio
+- 文档生成（excel,pdf,word）
+- examples gin+common 基础实例
+- 增加使用文档
+- 增加使用实例
 
 # TODO
 - grpc
@@ -44,7 +47,7 @@
 - pdf
 - http client
 - 三方登录（三方授权）
-- 对象存储 阿里，腾讯，minio
 - 三方支付
-- 文档生成（excel,pdf,word）
 - 三方短信
+- 发送邮件
+- 钉钉对接

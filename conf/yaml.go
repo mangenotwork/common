@@ -191,25 +191,9 @@ func InitConf(path string) {
 	}
 }
 
-var Config = &conf{}
-
-type conf struct {
-	Path string
-	Data map[string]interface{}
-}
-
-func NewConf(appConfigPath string) error {
-	Config = &conf{
-		Path: appConfigPath,
-		Data: make(map[string]interface{}),
-	}
-	err := Config.Init()
-	return err
-}
-
-func (c *conf) Init() error {
+func (c *conf) InitYaml() error {
 	if !utils.FileExists(c.Path) {
-		return fmt.Errorf("未找到配置文件 [%v] !", c.Path)
+		return fmt.Errorf("未找到配置文件 [%s] !", c.Path)
 	}
 	log.Info("读取配置文件:", c.Path)
 	//读取yaml文件到缓存中
@@ -219,25 +203,4 @@ func (c *conf) Init() error {
 		return err
 	}
 	return yaml.Unmarshal(config, c.Data)
-}
-
-func (c *conf) GetInt(key string) int {
-	if c.Data == nil {
-		_ = c.Init()
-	}
-	return utils.AnyToInt(c.Data[key])
-}
-
-func (c *conf) Get(key string) interface{} {
-	if c.Data == nil {
-		_ = c.Init()
-	}
-	return c.Data[key]
-}
-
-func (c *conf) GetStr(key string) string {
-	if c.Data == nil {
-		_ = c.Init()
-	}
-	return utils.AnyToString(c.Data[key])
 }
