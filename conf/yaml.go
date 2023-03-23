@@ -123,7 +123,7 @@ type Rabbit struct {
 
 // Kafka 消息队列kafka配置
 type Kafka struct {
-	Addr string `yaml:"addr"`
+	Addr []string `yaml:"addr"`
 }
 
 // Mongo mongo配置

@@ -268,9 +268,10 @@ func IsLeap(year int) bool {
 	return year%4 == 0 && (year%100 != 0 || year%400 == 0)
 }
 
-// IsToday 判断是否是今天
+// IsToday 判断是否是今天   "2006-01-02 15:04:05"
 // timestamp 需要判断的时间
-func IsToday(timestamp int64, nowTime time.Time) string {
+func IsToday(timestamp int64) string {
+	nowTime := time.Now()
 	t := time.Unix(timestamp, 0)
 	if t.Day() == nowTime.Day() && t.Month() == nowTime.Month() && t.Year() == nowTime.Year() {
 		return "今天 " + t.Format("15:04:05")
@@ -278,8 +279,9 @@ func IsToday(timestamp int64, nowTime time.Time) string {
 	return t.Format(timeFormat)
 }
 
-// IsTodayList 列表页的时间显示
-func IsTodayList(timestamp int64, nowTime time.Time) string {
+// IsTodayList 列表页的时间显示  "01-02 15:04"
+func IsTodayList(timestamp int64) string {
+	nowTime := time.Now()
 	t := time.Unix(timestamp, 0)
 	if t.Day() == nowTime.Day() && t.Month() == nowTime.Month() && t.Year() == nowTime.Year() {
 		return "今天 " + t.Format("15:04")
