@@ -109,7 +109,7 @@ func InitConfIni(path string) {
 	}
 
 	Conf.Kafka = &Kafka{
-		Addr: iniObj.Section("kafka").Key("addr").String(),
+		Addr: iniObj.Section("kafka").Key("addr").Strings(""),
 	}
 
 	Conf.Mongo = []*Mongo{

@@ -30,6 +30,8 @@ func NewMQ() MQer {
 		return new(MQNsqService)
 	case "rabbit":
 		return new(MQRabbitService)
+	case "kafka":
+		return new(MQKafkaService)
 	default:
 		return new(MQNsqService)
 	}
