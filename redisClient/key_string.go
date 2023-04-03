@@ -14,7 +14,7 @@ func (c *RedisClient) StringGet(key string) (string, error) {
 	if c.Conn == nil {
 		return "", NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "GET ", key)
+	log.InfoFTimes(3, "[Redis Log] execute : GET %s", key)
 	return redis.String(c.Conn.Do("GET", key))
 }
 
@@ -23,8 +23,9 @@ func (c *RedisClient) StringSET(key string, value interface{}) error {
 	if c.Conn == nil {
 		return NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "SET ", key, " ", value)
-	_, err := c.Conn.Do("SET", key, value)
+	arg := redis.Args{}.Add(key).Add(value)
+	log.InfoFTimes(3, "[Redis Log] execute : SET %s %v", key, value)
+	_, err := c.Conn.Do("SET", arg...)
 	return err
 }
 
@@ -33,8 +34,9 @@ func (c *RedisClient) StringSETEX(key string, ttl int64, value interface{}) erro
 	if c.Conn == nil {
 		return NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "SETEX ", key, " ", ttl, " ", value)
-	_, err := c.Conn.Do("SETEX", key, ttl, value)
+	arg := redis.Args{}.Add(key).Add(ttl).Add(value)
+	log.InfoFTimes(3, "[Redis Log] execute : SETEX  %s %v %v", key, ttl, value)
+	_, err := c.Conn.Do("SETEX", arg...)
 	return err
 }
 
@@ -44,8 +46,9 @@ func (c *RedisClient) StringPSETEX(key string, ttl int64, value interface{}) err
 	if c.Conn == nil {
 		return NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "PSETEX ", key, " ", ttl, " ", value)
-	_, err := c.Conn.Do("PSETEX", key, ttl, value)
+	arg := redis.Args{}.Add(key).Add(ttl).Add(value)
+	log.InfoFTimes(3, "[Redis Log] execute : PSETEX %s %v %v", key, ttl, value)
+	_, err := c.Conn.Do("PSETEX", arg...)
 	return err
 }
 
@@ -56,8 +59,9 @@ func (c *RedisClient) StringSETNX(key string, value interface{}) error {
 	if c.Conn == nil {
 		return NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "SETNX ", key, " ", value)
-	_, err := c.Conn.Do("SETNX", key, value)
+	log.InfoFTimes(3, "[Redis Log] execute : SETNX %s %v", key, value)
+	arg := redis.Args{}.Add(key).Add(value)
+	_, err := c.Conn.Do("SETNX", arg...)
 	return err
 }
 
@@ -68,8 +72,9 @@ func (c *RedisClient) StringSETRANGE(key string, offset int64, value interface{}
 	if c.Conn == nil {
 		return NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "SETRANGE ", key, " ", offset, " ", value)
-	_, err := c.Conn.Do("SETRANGE", key, offset, value)
+	arg := redis.Args{}.Add(key).Add(offset).Add(value)
+	log.InfoFTimes(3, "[Redis Log] execute : SETRANGE %s %v %v", key, offset, value)
+	_, err := c.Conn.Do("SETRANGE", arg...)
 	return err
 }
 
@@ -80,8 +85,9 @@ func (c *RedisClient) StringAPPEND(key string, value interface{}) error {
 	if c.Conn == nil {
 		return NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "APPEND", key, value)
-	_, err := redis.String(c.Conn.Do("APPEND ", key, value))
+	arg := redis.Args{}.Add(key).Add(value)
+	log.InfoFTimes(3, "[Redis Log] execute : APPEND %s %v", key, value)
+	_, err := redis.String(c.Conn.Do("APPEND", arg...))
 	return err
 }
 
@@ -93,8 +99,9 @@ func (c *RedisClient) StringSETBIT(key string, offset, value int64) error {
 	if c.Conn == nil {
 		return NotConnError
 	}
+	arg := redis.Args{}.Add(key).Add(offset).Add(value)
 	log.InfoFTimes(3, "[Redis Log] execute : SETBIT %s %d %d", key, offset, value)
-	_, err := c.Conn.Do("SETBIT", key, offset, value)
+	_, err := c.Conn.Do("SETBIT", arg...)
 	return err
 }
 
@@ -115,8 +122,9 @@ func (c *RedisClient) StringGETBIT(key string, offset int64) (int64, error) {
 	if c.Conn == nil {
 		return 0, NotConnError
 	}
+	arg := redis.Args{}.Add(key).Add(offset)
 	log.InfoFTimes(3, "[Redis Log] execute : GETBIT %s %d", key, offset)
-	return redis.Int64(c.Conn.Do("GETBIT", key, offset))
+	return redis.Int64(c.Conn.Do("GETBIT", arg...))
 }
 
 // StringBITOP BITOP operation destkey key [key ...]
@@ -135,7 +143,7 @@ func (c *RedisClient) StringDECR(key string) (int64, error) {
 	if c.Conn == nil {
 		return 0, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "DECR ", key)
+	log.InfoFTimes(3, "[Redis Log] execute : DECR %s", key)
 	return redis.Int64(c.Conn.Do("DECR", key))
 }
 
@@ -145,8 +153,9 @@ func (c *RedisClient) StringDECRBY(key, decrement string) (int64, error) {
 	if c.Conn == nil {
 		return 0, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "DECRBY ", key, " ", decrement)
-	return redis.Int64(c.Conn.Do("DECRBY", key, decrement))
+	arg := redis.Args{}.Add(key).Add(decrement)
+	log.InfoFTimes(3, "[Redis Log] execute : DECRBY %s %v", key, decrement)
+	return redis.Int64(c.Conn.Do("DECRBY", arg...))
 }
 
 // StringGETRANGE GETRANGE key start end
@@ -155,8 +164,9 @@ func (c *RedisClient) StringGETRANGE(key string, start, end int64) (string, erro
 	if c.Conn == nil {
 		return "", NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "GETRANGE", key, " ", start, " ", end)
-	return redis.String(c.Conn.Do("GETRANGE", key, start, end))
+	arg := redis.Args{}.Add(key).Add(start).Add(end)
+	log.InfoFTimes(3, "[Redis Log] execute : GETRANGE %s %v %v", key, start, end)
+	return redis.String(c.Conn.Do("GETRANGE", arg...))
 }
 
 // StringGETSET GETSET key value
@@ -166,8 +176,9 @@ func (c *RedisClient) StringGETSET(key string, value interface{}) (string, error
 	if c.Conn == nil {
 		return "", NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "GETSET", key, value)
-	return redis.String(c.Conn.Do("GETSET", key, value))
+	arg := redis.Args{}.Add(key).Add(value)
+	log.InfoFTimes(3, "[Redis Log] execute : GETSET %s %v", key, value)
+	return redis.String(c.Conn.Do("GETSET", arg...))
 }
 
 // StringINCR INCR key
@@ -178,7 +189,7 @@ func (c *RedisClient) StringINCR(key string) (int64, error) {
 	if c.Conn == nil {
 		return 0, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "INCR ", key)
+	log.InfoFTimes(3, "[Redis Log] execute : INCR %s", key)
 	return redis.Int64(c.Conn.Do("INCR", key))
 }
 
@@ -188,8 +199,9 @@ func (c *RedisClient) StringINCRBY(key, increment string) (int64, error) {
 	if c.Conn == nil {
 		return 0, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "INCRBY ", key, " ", increment)
-	return redis.Int64(c.Conn.Do("INCRBY", key, increment))
+	arg := redis.Args{}.Add(key).Add(increment)
+	log.InfoFTimes(3, "[Redis Log] execute : INCRBY %s %v", key, increment)
+	return redis.Int64(c.Conn.Do("INCRBY", arg...))
 }
 
 // StringINCRBYFLOAT INCRBYFLOAT key increment
@@ -198,8 +210,9 @@ func (c *RedisClient) StringINCRBYFLOAT(key, increment float64) (float64, error)
 	if c.Conn == nil {
 		return 0, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "INCRBYFLOAT ", key, " ", increment)
-	return redis.Float64(c.Conn.Do("INCRBYFLOAT", key, increment))
+	arg := redis.Args{}.Add(key).Add(increment)
+	log.InfoFTimes(3, "[Redis Log] execute : INCRBYFLOAT %s %v", key, increment)
+	return redis.Float64(c.Conn.Do("INCRBYFLOAT", arg...))
 }
 
 // StringMGET MGET key [key ...]
@@ -213,8 +226,8 @@ func (c *RedisClient) StringMGET(key []interface{}) ([]string, error) {
 	for _, value := range key {
 		args = args.Add(value)
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "MGET ", strings.Join(utils.AnyToStrings(key), " "))
-	return redis.Strings(c.Conn.Do("MGET", args))
+	log.InfoFTimes(3, "[Redis Log] execute : MGET %s %s", key, strings.Join(utils.AnyToStrings(key), " "))
+	return redis.Strings(c.Conn.Do("MGET", args...))
 }
 
 // StringMSET MSET key value [key value ...]
@@ -230,8 +243,8 @@ func (c *RedisClient) StringMSET(values []interface{}) error {
 	for _, value := range values {
 		args = args.Add(value)
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "MSET ", strings.Join(utils.AnyToStrings(values), " "))
-	_, err := c.Conn.Do("MSET", args)
+	log.InfoFTimes(3, "[Redis Log] execute : MSET %s", strings.Join(utils.AnyToStrings(values), " "))
+	_, err := c.Conn.Do("MSET", args...)
 	return err
 }
 
@@ -248,8 +261,8 @@ func (c *RedisClient) StringMSETNX(values []interface{}) error {
 	for _, value := range values {
 		args = args.Add(value)
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "MSETNX ", strings.Join(utils.AnyToStrings(values), " "))
-	_, err := c.Conn.Do("MSETNX", args)
+	log.InfoFTimes(3, "[Redis Log] execute : MSETNX %s", strings.Join(utils.AnyToStrings(values), " "))
+	_, err := c.Conn.Do("MSETNX", args...)
 	return err
 }
 

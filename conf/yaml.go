@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/mangenotwork/common/log"
 	"github.com/mangenotwork/common/utils"
@@ -15,6 +16,12 @@ import (
 var Conf *Configs = &Configs{}
 
 type Configs struct {
+	YamlPath string
+	YamlData map[string]interface{}
+	Default  *DefaultConf
+}
+
+type DefaultConf struct {
 	App        *App        `yaml:"app"`
 	HttpServer *HttpServer `yaml:"httpServer"`
 	GrpcServer *GrpcServer `yaml:"grpcServer"`
@@ -176,18 +183,26 @@ func InitConf(path string) {
 	if err != nil {
 		panic("【启动失败】" + err.Error())
 	}
-	err = yaml.Unmarshal(config, Conf)
+
+	Conf.YamlPath = path
+	Conf.YamlData = make(map[string]interface{})
+	err = yaml.Unmarshal(config, Conf.YamlData)
 	if err != nil {
 		panic("【启动失败】" + err.Error())
 	}
-	if Conf.Jwt == nil {
-		Conf.Jwt = &Jwt{}
+	Conf.Default = &DefaultConf{}
+	err = yaml.Unmarshal(config, Conf.Default)
+	if err != nil {
+		panic("【启动失败】" + err.Error())
 	}
-	if Conf.Jwt.Secret == "" {
-		Conf.Jwt.Secret = "mange-common"
+	if Conf.Default.Jwt == nil {
+		Conf.Default.Jwt = &Jwt{}
 	}
-	if Conf.Jwt.Expire == 0 {
-		Conf.Jwt.Expire = 3600 * 24 * 7 // 默认7天
+	if Conf.Default.Jwt.Secret == "" {
+		Conf.Default.Jwt.Secret = "mange-common"
+	}
+	if Conf.Default.Jwt.Expire == 0 {
+		Conf.Default.Jwt.Expire = 3600 * 24 * 7 // 默认7天
 	}
 }
 
@@ -203,4 +218,40 @@ func (c *conf) InitYaml() error {
 		return err
 	}
 	return yaml.Unmarshal(config, c.Data)
+}
+
+// YamlGet :: 区分 每一级
+func YamlGet(key string) (interface{}, bool) {
+	var (
+		d  interface{}
+		ok bool
+	)
+	keyList := strings.Split(key, "::")
+	temp := make(map[string]interface{})
+	temp = Conf.YamlData
+	for _, v := range keyList {
+		d, ok = temp[v]
+		if !ok {
+			break
+		}
+		temp = utils.AnyToMap(d)
+	}
+	return d, ok
+}
+
+// :: 区分
+func YamlGetString(key string) (string, error) {
+	data, ok := YamlGet(key)
+	if ok {
+		return utils.AnyToString(data), nil
+	}
+	return "", fmt.Errorf("配置文件没有找到参数 %s", key)
+}
+
+func YamlGetInt64(key string) (int64, error) {
+	data, ok := YamlGet(key)
+	if ok {
+		return utils.AnyToInt64(data), nil
+	}
+	return 0, fmt.Errorf("配置文件没有找到参数 %s", key)
 }

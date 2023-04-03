@@ -16,7 +16,7 @@ func (c *RedisClient) SetSMEMBERS(key string) ([]interface{}, error) {
 	if c.Conn == nil {
 		return nil, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "SMEMBERS ", key)
+	log.InfoFTimes(3, "[Redis Log] execute : SMEMBERS %s", key)
 	return redis.Values(c.Conn.Do("SMEMBERS", key))
 }
 
@@ -29,7 +29,7 @@ func (c *RedisClient) SetSADD(key string, values []interface{}) error {
 	for _, value := range values {
 		args = args.Add(value)
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "SADD ", strings.Join(utils.AnyToStrings(values), " "))
+	log.InfoFTimes(3, "[Redis Log] execute : SADD %s %s", key, strings.Join(utils.AnyToStrings(values), " "))
 	_, err := c.Conn.Do("SADD", args...)
 	return err
 }
@@ -40,7 +40,7 @@ func (c *RedisClient) SetSCARD(key string) error {
 	if c.Conn == nil {
 		return NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "SCARD ", key)
+	log.InfoFTimes(3, "[Redis Log] execute : SCARD %s", key)
 	_, err := redis.Int64(c.Conn.Do("SCARD ", key))
 	return err
 }
@@ -56,8 +56,8 @@ func (c *RedisClient) SetSDIFF(keys []string) ([]interface{}, error) {
 	for _, key := range keys {
 		args = args.Add(key)
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "SDIFF ", strings.Join(keys, " "))
-	return redis.Values(c.Conn.Do("SDIFF", args))
+	log.InfoFTimes(3, "[Redis Log] execute : SDIFF %s", strings.Join(keys, " "))
+	return redis.Values(c.Conn.Do("SDIFF", args...))
 }
 
 // SetSDIFFSTORE SDIFFSTORE destination key [key ...]
@@ -72,8 +72,8 @@ func (c *RedisClient) SetSDIFFSTORE(key string, keys []string) ([]interface{}, e
 	for _, key := range keys {
 		args = args.Add(key)
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "SDIFFSTORE ", key, " ", strings.Join(keys, " "))
-	return redis.Values(c.Conn.Do("SDIFFSTORE", args))
+	log.InfoFTimes(3, "[Redis Log] execute : SDIFFSTORE %s %s", key, strings.Join(keys, " "))
+	return redis.Values(c.Conn.Do("SDIFFSTORE", args...))
 }
 
 // SetSINTER SINTER key [key ...]
@@ -87,8 +87,8 @@ func (c *RedisClient) SetSINTER(keys []string) ([]interface{}, error) {
 	for _, key := range keys {
 		args = args.Add(key)
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "SINTER ", strings.Join(keys, " "))
-	return redis.Values(c.Conn.Do("SINTER", args))
+	log.InfoFTimes(3, "[Redis Log] execute : SINTER %s", strings.Join(keys, " "))
+	return redis.Values(c.Conn.Do("SINTER", args...))
 }
 
 // SetSINTERSTORE SINTERSTORE destination key [key ...]
@@ -103,8 +103,8 @@ func (c *RedisClient) SetSINTERSTORE(key string, keys []string) ([]interface{}, 
 	for _, k := range keys {
 		args = args.Add(k)
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "SINTERSTORE ", key, " ", strings.Join(keys, " "))
-	return redis.Values(c.Conn.Do("SINTERSTORE", args))
+	log.InfoFTimes(3, "[Redis Log] execute : SINTERSTORE %s %s", key, strings.Join(keys, " "))
+	return redis.Values(c.Conn.Do("SINTERSTORE", args...))
 }
 
 // SetSISMEMBER SISMEMBER key member
@@ -116,9 +116,10 @@ func (c *RedisClient) SetSISMEMBER(key string, value interface{}) (resBool bool,
 	if c.Conn == nil {
 		return false, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "SISMEMBER ", key, " ", value)
+	log.InfoFTimes(3, "[Redis Log] execute : SISMEMBER %s %v", key, value)
 	resBool = false
-	res, err := redis.Int64(c.Conn.Do("SISMEMBER", key, value))
+	arg := redis.Args{}.Add(key).Add(value)
+	res, err := redis.Int64(c.Conn.Do("SISMEMBER", arg...))
 	if err != nil {
 		return
 	}
@@ -141,9 +142,10 @@ func (c *RedisClient) SetSMOVE(key, destination string, member interface{}) (res
 	if c.Conn == nil {
 		return false, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "SMOVE ", key, " ", destination, " ", member)
+	log.InfoFTimes(3, "[Redis Log] execute : SMOVE %s %v %v", key, destination, member)
 	resBool = false
-	res, err := redis.Int64(c.Conn.Do("SMOVE", key, destination, member))
+	arg := redis.Args{}.Add(key).Add(destination).Add(member)
+	res, err := redis.Int64(c.Conn.Do("SMOVE", arg...))
 	if err != nil {
 		return
 	}
@@ -160,7 +162,7 @@ func (c *RedisClient) SetSPOP(key string) (string, error) {
 	if c.Conn == nil {
 		return "", NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "SPOP", " ", key)
+	log.InfoFTimes(3, "[Redis Log] execute : SPOP %s", key)
 	return redis.String(c.Conn.Do("SPOP", key))
 }
 
@@ -173,8 +175,9 @@ func (c *RedisClient) SetSRANDMEMBER(key string, count int64) ([]interface{}, er
 	if c.Conn == nil {
 		return nil, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "SRANDMEMBER ", key, " ", count)
-	return redis.Values(c.Conn.Do("SRANDMEMBER", key, count))
+	arg := redis.Args{}.Add(key).Add(count)
+	log.InfoFTimes(3, "[Redis Log] execute : SRANDMEMBER %s %v", key, count)
+	return redis.Values(c.Conn.Do("SRANDMEMBER", arg...))
 }
 
 // SetSREM SREM key member [member ...]
@@ -187,9 +190,8 @@ func (c *RedisClient) SetSREM(key string, member []interface{}) error {
 	for _, v := range member {
 		args = args.Add(v)
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "SREM ", key,
-		strings.Join(utils.AnyToStrings(member), " "))
-	_, err := c.Conn.Do("SREM", args)
+	log.InfoFTimes(3, "[Redis Log] execute : SREM %s %s", key, strings.Join(utils.AnyToStrings(member), " "))
+	_, err := c.Conn.Do("SREM", args...)
 	return err
 }
 
@@ -203,8 +205,8 @@ func (c *RedisClient) SetSUNION(keys []string) ([]interface{}, error) {
 	for _, v := range keys {
 		args = args.Add(v)
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "SUNION ", strings.Join(keys, " "))
-	return redis.Values(c.Conn.Do("SUNION", args))
+	log.InfoFTimes(3, "[Redis Log] execute : SUNION %s", strings.Join(keys, " "))
+	return redis.Values(c.Conn.Do("SUNION", args...))
 }
 
 // SetSUNIONSTORE SUNIONSTORE destination key [key ...]
@@ -217,8 +219,8 @@ func (c *RedisClient) SetSUNIONSTORE(key string, keys []string) ([]interface{}, 
 	for _, v := range keys {
 		args = args.Add(v)
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "SUNIONSTORE", key, " ", strings.Join(keys, " "))
-	return redis.Values(c.Conn.Do("SUNIONSTORE", args))
+	log.InfoFTimes(3, "[Redis Log] execute : SUNIONSTORE %s %s", key, strings.Join(keys, " "))
+	return redis.Values(c.Conn.Do("SUNIONSTORE", args...))
 }
 
 // 搜索值  SSCAN key cursor [MATCH pattern] [COUNT count]

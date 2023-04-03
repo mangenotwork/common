@@ -14,7 +14,7 @@ func (c *RedisClient) HashHGETALL(key string) (map[string]string, error) {
 	if c.Conn == nil {
 		return nil, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "HGETALL ", key)
+	log.InfoFTimes(3, "[Redis Log] execute : HGETALL %s", key)
 	return redis.StringMap(c.Conn.Do("HGETALL", key))
 }
 
@@ -23,7 +23,7 @@ func (c *RedisClient) HashHGETALLInt(key string) (map[string]int, error) {
 	if c.Conn == nil {
 		return nil, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "HGETALL ", key)
+	log.InfoFTimes(3, "[Redis Log] execute : HGETALL %s", key)
 	return redis.IntMap(c.Conn.Do("HGETALL", key))
 }
 
@@ -32,7 +32,7 @@ func (c *RedisClient) HashHGETALLInt64(key string) (map[string]int64, error) {
 	if c.Conn == nil {
 		return nil, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "HGETALL ", key)
+	log.InfoFTimes(3, "[Redis Log] execute : HGETALL %s", key)
 	return redis.Int64Map(c.Conn.Do("HGETALL", key))
 }
 
@@ -43,8 +43,9 @@ func (c *RedisClient) HashHSET(key, field string, value interface{}) (int64, err
 	if c.Conn == nil {
 		return 0, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "HSET ", key, " ", field, " ", value)
-	return redis.Int64(c.Conn.Do("HSET", key, field, value))
+	arg := redis.Args{}.Add(key).Add(field).Add(value)
+	log.InfoFTimes(3, "[Redis Log] execute : HSET %s %v %v", key, field, value)
+	return redis.Int64(c.Conn.Do("HSET", arg...))
 }
 
 // HashHMSET HMSET 新建Hash 多个field
@@ -60,7 +61,7 @@ func (c *RedisClient) HashHMSET(key string, values map[interface{}]interface{}) 
 		args = args.Add(k)
 		args = args.Add(v)
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "HMSET ", strings.Join(utils.AnyToStrings(values), " "))
+	log.InfoFTimes(3, "[Redis Log] execute : HMSET %s %s ", key, strings.Join(utils.AnyToStrings(values), " "))
 	_, err := c.Conn.Do("HMSET", args...)
 	return err
 }
@@ -72,8 +73,9 @@ func (c *RedisClient) HashHSETNX(key, field string, value interface{}) error {
 	if c.Conn == nil {
 		return NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "HSETNX ", key, " ", field, " ", value)
-	_, err := c.Conn.Do("HSETNX", key, field, value)
+	arg := redis.Args{}.Add(key).Add(field).Add(value)
+	log.InfoFTimes(3, "[Redis Log] execute : HSETNX %s %v %v", key, field, value)
+	_, err := c.Conn.Do("HSETNX", arg...)
 	return err
 }
 
@@ -87,8 +89,8 @@ func (c *RedisClient) HashHDEL(key string, fields []string) error {
 	for _, v := range fields {
 		args = args.Add(v)
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "HDEL ", strings.Join(fields, " "))
-	_, err := c.Conn.Do("HDEL", args)
+	log.InfoFTimes(3, "[Redis Log] execute : HDEL %s %s", key, strings.Join(fields, " "))
+	_, err := c.Conn.Do("HDEL", args...)
 	return err
 }
 
@@ -99,8 +101,9 @@ func (c *RedisClient) HashHEXISTS(key, fields string) bool {
 		log.ErrorTimes(3, "[Redis Log] error :", NotConnError)
 		return false
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "HEXISTS ", key, " ", fields)
-	res, err := redis.Int(c.Conn.Do("HEXISTS", key, fields))
+	arg := redis.Args{}.Add(key).Add(fields)
+	log.InfoFTimes(3, "[Redis Log] execute : HEXISTS %s %s", key, fields)
+	res, err := redis.Int(c.Conn.Do("HEXISTS", arg...))
 	if err != nil {
 		log.ErrorTimes(3, "[Redis Log] error :", err)
 		return false
@@ -117,8 +120,9 @@ func (c *RedisClient) HashHGET(key, fields string) (string, error) {
 	if c.Conn == nil {
 		return "", NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "HGET ", key, " ", fields)
-	return redis.String(c.Conn.Do("HGET", key, fields))
+	arg := redis.Args{}.Add(key).Add(fields)
+	log.InfoFTimes(3, "[Redis Log] execute : HGET %s %s", key, fields)
+	return redis.String(c.Conn.Do("HGET", arg...))
 }
 
 // HashHINCRBY HINCRBY key field increment
@@ -130,8 +134,9 @@ func (c *RedisClient) HashHINCRBY(key, field string, increment int64) (int64, er
 	if c.Conn == nil {
 		return 0, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "HINCRBY ", key, " ", field, " ", increment)
-	return redis.Int64(c.Conn.Do("HINCRBY", key, field, increment))
+	arg := redis.Args{}.Add(key).Add(field).Add(increment)
+	log.InfoFTimes(3, "[Redis Log] execute : HINCRBY %s %v %v", key, field, increment)
+	return redis.Int64(c.Conn.Do("HINCRBY", arg...))
 }
 
 // HashHINCRBYFLOAT HINCRBYFLOAT key field increment
@@ -142,8 +147,9 @@ func (c *RedisClient) HashHINCRBYFLOAT(key, field string, increment float64) (fl
 	if c.Conn == nil {
 		return 0, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "HINCRBYFLOAT ", key, " ", field, " ", increment)
-	return redis.Float64(c.Conn.Do("HINCRBYFLOAT", key, field, increment))
+	arg := redis.Args{}.Add(key).Add(field).Add(increment)
+	log.InfoFTimes(3, "[Redis Log] execute : HINCRBYFLOAT %s %v %v", key, field, increment)
+	return redis.Float64(c.Conn.Do("HINCRBYFLOAT", arg...))
 }
 
 // HashHKEYS HKEYS key 返回哈希表
@@ -152,7 +158,7 @@ func (c *RedisClient) HashHKEYS(key string) ([]string, error) {
 	if c.Conn == nil {
 		return nil, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "HKEYS ", key)
+	log.InfoFTimes(3, "[Redis Log] execute : HKEYS %s", key)
 	return redis.Strings(c.Conn.Do("HKEYS", key))
 }
 
@@ -162,7 +168,7 @@ func (c *RedisClient) HashHLEN(key string) (int64, error) {
 	if c.Conn == nil {
 		return 0, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "HLEN ", key)
+	log.InfoFTimes(3, "[Redis Log] execute : HLEN %s", key)
 	return redis.Int64(c.Conn.Do("HLEN", key))
 }
 
@@ -177,8 +183,8 @@ func (c *RedisClient) HashHMGET(key string, fields []string) ([]string, error) {
 	for _, v := range fields {
 		args = args.Add(v)
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "HMGET", strings.Join(fields, " "))
-	return redis.Strings(c.Conn.Do("HMGET", args))
+	log.InfoFTimes(3, "[Redis Log] execute : HMGET %s %s", key, strings.Join(fields, " "))
+	return redis.Strings(c.Conn.Do("HMGET", args...))
 }
 
 // HashHVALS HVALS key
@@ -187,7 +193,7 @@ func (c *RedisClient) HashHVALS(key string) ([]string, error) {
 	if c.Conn == nil {
 		return nil, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "HVALS", key)
+	log.InfoFTimes(3, "[Redis Log] execute : HVALS %s", key)
 	return redis.Strings(c.Conn.Do("HVALS", key))
 }
 

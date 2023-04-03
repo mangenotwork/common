@@ -1,7 +1,6 @@
 package redisClient
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/mangenotwork/common/log"
@@ -15,8 +14,9 @@ func (c *RedisClient) ZSetZRANGEALL(key string) ([]interface{}, error) {
 	if c.Conn == nil {
 		return nil, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "ZRANGE ", key, " ", 0, " ", -1, " ", "WITHSCORES")
-	return redis.Values(c.Conn.Do("ZRANGE", key, 0, -1, "WITHSCORES"))
+	arg := redis.Args{}.Add(key).Add(0).Add(-1).Add("WITHSCORES")
+	log.InfoFTimes(3, "[Redis Log] execute : ZRANGE %s 0 -1 ", "ZRANGE WITHSCORES", key)
+	return redis.Values(c.Conn.Do("ZRANGE", arg...))
 }
 
 // ZSetZRANGE ZRANGE key start stop [WITHSCORES]
@@ -26,8 +26,9 @@ func (c *RedisClient) ZSetZRANGE(key string, start, stop int64) ([]interface{}, 
 	if c.Conn == nil {
 		return nil, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "ZRANGE ", key, " ", start, " ", stop, " ", "WITHSCORES")
-	return redis.Values(c.Conn.Do("ZRANGE", key, start, stop, "WITHSCORES"))
+	arg := redis.Args{}.Add(key).Add(start).Add(stop).Add("WITHSCORES")
+	log.InfoFTimes(3, "[Redis Log] execute : ZRANGE %s %v %v WITHSCORES", key, start, stop)
+	return redis.Values(c.Conn.Do("ZRANGE", arg...))
 }
 
 // ZSetZREVRANGE ZREVRANGE key start stop [WITHSCORES]
@@ -38,25 +39,18 @@ func (c *RedisClient) ZSetZREVRANGE(key string, start, stop int64) ([]interface{
 	if c.Conn == nil {
 		return nil, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "ZREVRANGE", key, " ", start, " ", stop, " ", "WITHSCORES")
-	return redis.Values(c.Conn.Do("ZREVRANGE", key, start, stop, "WITHSCORES"))
+	arg := redis.Args{}.Add(key).Add(start).Add(stop).Add("WITHSCORES")
+	log.InfoFTimes(3, "[Redis Log] execute : ZREVRANGE %s %v %v WITHSCORES", key, start, stop)
+	return redis.Values(c.Conn.Do("ZREVRANGE", arg...))
 }
 
 // ZSetZADD ZADD 新创建ZSet 将一个或多个 member 元素及其 score 值加入到有序集 key 当中。
-func (c *RedisClient) ZSetZADD(key string, values []interface{}) error {
+func (c *RedisClient) ZSetZADD(key string, weight interface{}, field interface{}) error {
 	if c.Conn == nil {
 		return NotConnError
 	}
-	args := redis.Args{}.Add(key)
-	for _, value := range values {
-		fmt.Println(value)
-		for k, v := range value.(map[string]interface{}) {
-			args = args.Add(v)
-			args = args.Add(k)
-		}
-	}
-	log.InfoTimes(3, "[Redis Log] execute :", "ZADD", key, " ",
-		strings.Join(utils.AnyToStrings(args), " "))
+	args := redis.Args{}.Add(key).Add(weight).Add(field)
+	log.InfoFTimes(3, "[Redis Log] execute : ZADD %s %v %v", key, weight, field)
 	_, err := c.Conn.Do("ZADD", args...)
 	return err
 }
@@ -67,7 +61,7 @@ func (c *RedisClient) ZSetZCARD(key string) (int64, error) {
 	if c.Conn == nil {
 		return 0, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "ZCARD", key)
+	log.InfoFTimes(3, "[Redis Log] execute : ZCARD %s", key)
 	return redis.Int64(c.Conn.Do("ZCARD", key))
 }
 
@@ -77,8 +71,9 @@ func (c *RedisClient) ZSetZCOUNT(key string, min, max int64) (int64, error) {
 	if c.Conn == nil {
 		return 0, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "ZCOUNT ", key, " ", min, " ", max)
-	return redis.Int64(c.Conn.Do("ZCOUNT", key, min, max))
+	arg := redis.Args{}.Add(key).Add(min).Add(max)
+	log.InfoFTimes(3, "[Redis Log] execute : ZCOUNT %s %v %v", key, min, max)
+	return redis.Int64(c.Conn.Do("ZCOUNT", arg...))
 }
 
 // ZSetZINCRBY ZINCRBY key increment member
@@ -89,8 +84,9 @@ func (c *RedisClient) ZSetZINCRBY(key, member string, increment int64) (string, 
 	if c.Conn == nil {
 		return "", NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "ZINCRBY", key, increment, member)
-	return redis.String(c.Conn.Do("ZINCRBY", key, increment, member))
+	arg := redis.Args{}.Add(key).Add(increment).Add(member)
+	log.InfoFTimes(3, "[Redis Log] execute : ZINCRBY %s %v %v", key, increment, member)
+	return redis.String(c.Conn.Do("ZINCRBY", arg...))
 }
 
 // ZSetZRANGEBYSCORE ZRANGEBYSCORE key min max [WITHSCORES] [LIMIT offset count]
@@ -106,17 +102,18 @@ func (c *RedisClient) ZSetZRANGEBYSCORE(key string, min, max, offset, count int6
 	if c.Conn == nil {
 		return nil, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "ZRANGEBYSCORE ", key, " ", min, " ", max, " ",
-		offset, " ", count)
-	return redis.Values(c.Conn.Do("ZRANGEBYSCORE", key, min, max, offset, count))
+	log.InfoFTimes(3, "[Redis Log] execute : ZRANGEBYSCORE %s %v %v %v %v", key, min, max, offset, count)
+	arg := redis.Args{}.Add(key).Add(min).Add(max).Add(offset).Add(count)
+	return redis.Values(c.Conn.Do("ZRANGEBYSCORE", arg...))
 }
 
 func (c *RedisClient) ZSetZRANGEBYSCOREALL(key string) ([]interface{}, error) {
 	if c.Conn == nil {
 		return nil, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "ZRANGEBYSCORE ", key, " -inf ", "+inf")
-	return redis.Values(c.Conn.Do("ZRANGEBYSCORE", key, "-inf", "+inf"))
+	arg := redis.Args{}.Add(key).Add("-inf").Add("+inf")
+	log.InfoFTimes(3, "[Redis Log] execute : ZRANGEBYSCORE %s -inf +inf", key)
+	return redis.Values(c.Conn.Do("ZRANGEBYSCORE", arg...))
 }
 
 // ZREVRANGEBYSCORE key max min [WITHSCORES] [LIMIT offset count]
@@ -127,17 +124,18 @@ func (c *RedisClient) ZSetZREVRANGEBYSCORE(key string, min, max, offset, count i
 	if c.Conn == nil {
 		return nil, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "ZREVRANGEBYSCORE ", key, " ", min, " ", max, " ",
-		offset, " ", count)
-	return redis.Values(c.Conn.Do("ZREVRANGEBYSCORE", key, min, max, offset, count))
+	log.InfoFTimes(3, "[Redis Log] execute : ZREVRANGEBYSCORE %s %v %v %v %v", key, min, max, offset, count)
+	arg := redis.Args{}.Add(key).Add(min).Add(max).Add(offset).Add(count)
+	return redis.Values(c.Conn.Do("ZREVRANGEBYSCORE", arg...))
 }
 
 func (c *RedisClient) ZSetZREVRANGEBYSCOREALL(key string) ([]interface{}, error) {
 	if c.Conn == nil {
 		return nil, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "ZREVRANGEBYSCORE ", key, " -inf ", "+inf")
-	return redis.Values(c.Conn.Do("ZREVRANGEBYSCORE", key, "-inf", "+inf"))
+	log.InfoFTimes(3, "[Redis Log] execute : ZREVRANGEBYSCORE %s -inf +inf", key)
+	arg := redis.Args{}.Add(key).Add("-inf").Add("+inf")
+	return redis.Values(c.Conn.Do("ZREVRANGEBYSCORE", arg...))
 }
 
 // ZSetZRANK ZRANK key member
@@ -147,8 +145,9 @@ func (c *RedisClient) ZSetZRANK(key string, member interface{}) (int64, error) {
 	if c.Conn == nil {
 		return 0, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "ZRANK", key, member)
-	return redis.Int64(c.Conn.Do("ZRANK", key, member))
+	arg := redis.Args{}.Add(key).Add(member)
+	log.InfoFTimes(3, "[Redis Log] execute : ZRANK %s %v", key, member)
+	return redis.Int64(c.Conn.Do("ZRANK", arg...))
 }
 
 // ZSetZREM ZREM key member [member ...]
@@ -161,8 +160,7 @@ func (c *RedisClient) ZSetZREM(key string, member []interface{}) error {
 	for _, v := range member {
 		args = args.Add(v)
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "ZREM ", key,
-		strings.Join(utils.AnyToStrings(member), " "))
+	log.InfoFTimes(3, "[Redis Log] execute : ZREM %s %s", key, strings.Join(utils.AnyToStrings(member), " "))
 	_, err := c.Conn.Do("ZREM", args...)
 	return err
 }
@@ -174,8 +172,9 @@ func (c *RedisClient) ZSetZREMRANGEBYRANK(key string, start, stop int64) error {
 	if c.Conn == nil {
 		return NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "ZREMRANGEBYRANK ", key, " ", start, " ", stop)
-	_, err := redis.Int64(c.Conn.Do("ZREMRANGEBYRANK", key, start, stop))
+	log.InfoFTimes(3, "[Redis Log] execute : ZREMRANGEBYRANK %s %v %v", key, start, stop)
+	arg := redis.Args{}.Add(key).Add(start).Add(stop)
+	_, err := redis.Int64(c.Conn.Do("ZREMRANGEBYRANK", arg...))
 	return err
 }
 
@@ -185,8 +184,9 @@ func (c *RedisClient) ZSetZREMRANGEBYSCORE(key string, min, max int64) error {
 	if c.Conn == nil {
 		return NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "ZREMRANGEBYSCORE ", key, " ", min, " ", max)
-	_, err := c.Conn.Do("ZREMRANGEBYSCORE", key, min, max)
+	log.InfoFTimes(3, "[Redis Log] execute : ZREMRANGEBYSCORE %s %v %v", key, min, max)
+	arg := redis.Args{}.Add(key).Add(min).Add(max)
+	_, err := c.Conn.Do("ZREMRANGEBYSCORE", arg...)
 	return err
 }
 
@@ -198,8 +198,9 @@ func (c *RedisClient) ZSetZREVRANK(key string, member interface{}) (int64, error
 	if c.Conn == nil {
 		return 0, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "ZREVRANK ", key, " ", member)
-	return redis.Int64(c.Conn.Do("ZREVRANK", key, member))
+	log.InfoFTimes(3, "[Redis Log] execute : ZREVRANK %s %v", key, member)
+	arg := redis.Args{}.Add(key).Add(member)
+	return redis.Int64(c.Conn.Do("ZREVRANK", arg...))
 }
 
 // ZSetZSCORE ZSCORE key member
@@ -208,8 +209,9 @@ func (c *RedisClient) ZSetZSCORE(key string, member interface{}) (string, error)
 	if c.Conn == nil {
 		return "", NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "ZSCORE ", key, " ", member)
-	return redis.String(c.Conn.Do("ZSCORE", key, member))
+	log.InfoFTimes(3, "[Redis Log] execute : ZSCORE %s %v", key, member)
+	arg := redis.Args{}.Add(key).Add(member)
+	return redis.String(c.Conn.Do("ZSCORE", arg...))
 }
 
 // ZSetZUNIONSTORE ZUNIONSTORE destination numkeys key [key ...] [WEIGHTS weight [weight ...]] [AGGREGATE SUM|MIN|MAX]

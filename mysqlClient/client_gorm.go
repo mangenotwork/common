@@ -15,8 +15,8 @@ var MysqlGorm map[string]*gorm.DB
 
 // InitMysqlGorm 配置文件读取配置
 func InitMysqlGorm() {
-	MysqlGorm = make(map[string]*gorm.DB, len(conf.Conf.Mysql))
-	for _, v := range conf.Conf.Mysql {
+	MysqlGorm = make(map[string]*gorm.DB, len(conf.Conf.Default.Mysql))
+	for _, v := range conf.Conf.Default.Mysql {
 		log.Println(v)
 		m, err := NewORM(v.DBName, v.User, v.Password, v.Host, v.Port, false)
 		if err != nil {

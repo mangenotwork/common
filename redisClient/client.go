@@ -33,10 +33,10 @@ func GetClient(name string) (*RedisClient, error) {
 
 // InitConfRedisConn 配置文件读redis配置，并将连接保存到 RedisConnMap
 func InitConfRedisConn() {
-	if conf.Conf == nil || len(conf.Conf.Redis) < 1 {
+	if conf.Conf == nil || len(conf.Conf.Default.Redis) < 1 {
 		panic("未读取到redis配置")
 	}
-	for _, v := range conf.Conf.Redis {
+	for _, v := range conf.Conf.Default.Redis {
 		conn, err := Conn(fmt.Sprintf("%s:%s", v.Host, v.Port), v.Password, v.DB)
 		if err != nil {
 			log.Error(err)

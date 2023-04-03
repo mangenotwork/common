@@ -13,8 +13,8 @@ import (
 )
 
 var (
-	nsqServer   = conf.Conf.Nsq.Producer // nsqServer
-	kafkaServer = conf.Conf.Kafka.Addr   // kafkaServer
+	nsqServer   = conf.Conf.Default.Nsq.Producer // nsqServer
+	kafkaServer = conf.Conf.Default.Kafka.Addr   // kafkaServer
 )
 
 // MQer 消息队列接口
@@ -25,7 +25,7 @@ type MQer interface {
 
 // NewMQ 实例化消息队列对象
 func NewMQ() MQer {
-	switch conf.Conf.Mq { // mq 设置的类型
+	switch conf.Conf.Default.Mq { // mq 设置的类型
 	case "nsq":
 		return new(MQNsqService)
 	case "rabbit":

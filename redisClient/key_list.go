@@ -14,7 +14,7 @@ func (c *RedisClient) ListLRANGEALL(key string) ([]interface{}, error) {
 	if c.Conn == nil {
 		return nil, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "LRANGE ", key, " ", 0, " ", -1)
+	log.InfoFTimes(3, "[Redis Log] execute : LRANGE %s 0 -1", key)
 	return redis.Values(c.Conn.Do("LRANGE", key, 0, -1))
 }
 
@@ -24,8 +24,9 @@ func (c *RedisClient) ListLRANGE(key string, start, stop int64) ([]interface{}, 
 	if c.Conn == nil {
 		return nil, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "LRANGE ", key, " ", start, " ", stop)
-	return redis.Values(c.Conn.Do("LRANGE", key, start, stop))
+	arg := redis.Args{}.Add(key).Add(start).Add(stop)
+	log.InfoFTimes(3, "[Redis Log] execute : LRANGE %s %v %v", key, start, stop)
+	return redis.Values(c.Conn.Do("LRANGE", arg...))
 }
 
 // ListLPUSH LPUSH 新创建list 将一个或多个值 value 插入到列表 key 的表头
@@ -37,7 +38,7 @@ func (c *RedisClient) ListLPUSH(key string, values []interface{}) error {
 	for _, value := range values {
 		args = args.Add(value)
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "LPUSH ", strings.Join(utils.AnyToStrings(values), " "))
+	log.InfoFTimes(3, "[Redis Log] execute : LPUSH %s %s", key, strings.Join(utils.AnyToStrings(values), " "))
 	_, err := c.Conn.Do("LPUSH", args...)
 	return err
 }
@@ -55,8 +56,8 @@ func (c *RedisClient) ListRPUSH(key string, values []interface{}) error {
 	for _, value := range values {
 		args = args.Add(value)
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "RPUSH ", strings.Join(utils.AnyToStrings(values), " "))
-	_, err := c.Conn.Do("RPUSH", args)
+	log.InfoFTimes(3, "[Redis Log] execute : RPUSH %s %s", key, strings.Join(utils.AnyToStrings(values), " "))
+	_, err := c.Conn.Do("RPUSH", args...)
 	return err
 }
 
@@ -81,8 +82,9 @@ func (c *RedisClient) ListLINDEX(key string, index int64) (string, error) {
 	if c.Conn == nil {
 		return "", NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "LINDEX ", key, " ", index)
-	return redis.String(c.Conn.Do("LINDEX", key, index))
+	arg := redis.Args{}.Add(key).Add(index)
+	log.InfoFTimes(3, "[Redis Log] execute : LINDEX %s %v", key, index)
+	return redis.String(c.Conn.Do("LINDEX", arg...))
 }
 
 // ListLINSERT LINSERT key BEFORE|AFTER pivot value
@@ -99,8 +101,9 @@ func (c *RedisClient) ListLINSERT(direction bool, key, pivot, value string) erro
 	if direction {
 		directionStr = "BEFORE"
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "LINSERT ", key, " ", directionStr, " ", pivot, " ", value)
-	_, err := c.Conn.Do("LINSERT", key, directionStr, pivot, value)
+	arg := redis.Args{}.Add(key).Add(directionStr).Add(pivot).Add(value)
+	log.InfoFTimes(3, "[Redis Log] execute : LINSERT %s %v %v %v", key, directionStr, pivot, value)
+	_, err := c.Conn.Do("LINSERT", arg...)
 	return err
 }
 
@@ -111,7 +114,7 @@ func (c *RedisClient) ListLLEN(key string) (int64, error) {
 	if c.Conn == nil {
 		return 0, NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "LLEN ", key)
+	log.InfoFTimes(3, "[Redis Log] execute : LLEN %s", key)
 	return redis.Int64(c.Conn.Do("LLEN", key))
 }
 
@@ -121,7 +124,7 @@ func (c *RedisClient) ListLPOP(key string) (string, error) {
 	if c.Conn == nil {
 		return "", NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "LPOP ", key)
+	log.InfoFTimes(3, "[Redis Log] execute : LPOP %s", key)
 	return redis.String(c.Conn.Do("LPOP", key))
 }
 
@@ -132,8 +135,9 @@ func (c *RedisClient) ListLPUSHX(key string, value interface{}) error {
 	if c.Conn == nil {
 		return NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "LPUSHX ", key, " ", value)
-	_, err := c.Conn.Do("LPUSHX", key, value)
+	arg := redis.Args{}.Add(key).Add(value)
+	log.InfoFTimes(3, "[Redis Log] execute : LPUSHX %s %v", key, value)
+	_, err := c.Conn.Do("LPUSHX", arg...)
 	return err
 }
 
@@ -147,8 +151,9 @@ func (c *RedisClient) ListLREM(key string, count int64, value interface{}) error
 	if c.Conn == nil {
 		return NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "LREM ", key, " ", count, " ", value)
-	_, err := c.Conn.Do("LREM", key, count, value)
+	arg := redis.Args{}.Add(key).Add(count).Add(value)
+	log.InfoFTimes(3, "[Redis Log] execute : LREM %s %v %v", key, count, value)
+	_, err := c.Conn.Do("LREM", arg...)
 	return err
 }
 
@@ -159,8 +164,9 @@ func (c *RedisClient) ListLSET(key string, index int64, value interface{}) error
 	if c.Conn == nil {
 		return NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "LSET ", key, " ", index, " ", value)
-	_, err := c.Conn.Do("LSET", key, index, value)
+	arg := redis.Args{}.Add(key).Add(index).Add(value)
+	log.InfoFTimes(3, "[Redis Log] execute : LSET %s %v %v", key, index, value)
+	_, err := c.Conn.Do("LSET", arg...)
 	return err
 }
 
@@ -171,8 +177,9 @@ func (c *RedisClient) ListLTRIM(key string, start, stop int64) error {
 	if c.Conn == nil {
 		return NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "LTRIM ", key, " ", start, " ", stop)
-	_, err := c.Conn.Do("LTRIM", key, start, stop)
+	arg := redis.Args{}.Add(key).Add(start).Add(stop)
+	log.InfoFTimes(3, "[Redis Log] execute : LTRIM %s %v %v", key, start, stop)
+	_, err := c.Conn.Do("LTRIM", arg...)
 	return err
 }
 
@@ -182,7 +189,7 @@ func (c *RedisClient) ListRPOP(key string) (string, error) {
 	if c.Conn == nil {
 		return "", NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "RPOP ", key)
+	log.InfoFTimes(3, "[Redis Log] execute : RPOP %s", key)
 	return redis.String(c.Conn.Do("RPOP", key))
 }
 
@@ -199,8 +206,9 @@ func (c *RedisClient) ListRPOPLPUSH(key, destination string) (string, error) {
 	if c.Conn == nil {
 		return "", NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "RPOPLPUSH ", key, " ", destination)
-	return redis.String(c.Conn.Do("RPOPLPUSH", key, destination))
+	arg := redis.Args{}.Add(key).Add(destination)
+	log.InfoFTimes(3, "[Redis Log] execute : RPOPLPUSH %s %v", key, destination)
+	return redis.String(c.Conn.Do("RPOPLPUSH", arg...))
 }
 
 // ListRPUSHX RPUSHX key value
@@ -209,7 +217,8 @@ func (c *RedisClient) ListRPUSHX(key string, value interface{}) error {
 	if c.Conn == nil {
 		return NotConnError
 	}
-	log.InfoTimes(3, "[Redis Log] execute :", "RPUSHX ", key, " ", value)
-	_, err := c.Conn.Do("RPUSHX", key, value)
+	arg := redis.Args{}.Add(key).Add(value)
+	log.InfoFTimes(3, "[Redis Log] execute : RPUSHX %s %v", key, value)
+	_, err := c.Conn.Do("RPUSHX", arg...)
 	return err
 }
