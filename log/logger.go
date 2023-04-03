@@ -149,6 +149,12 @@ func InfoTimes(times int, args ...interface{}) {
 	std.Log(1, fmt.Sprint(args...), times)
 }
 
+// InfoFTimes
+// times 意思是打印第几级函数调用
+func InfoFTimes(times int, format string, args ...interface{}) {
+	std.Log(1, fmt.Sprintf(format, args...), times)
+}
+
 func Debug(args ...interface{}) {
 	std.Log(2, fmt.Sprint(args...), 2)
 }
@@ -159,6 +165,10 @@ func DebugF(format string, args ...interface{}) {
 
 func DebugTimes(times int, args ...interface{}) {
 	std.Log(2, fmt.Sprint(args...), times)
+}
+
+func DebugFTimes(times int, format string, args ...interface{}) {
+	std.Log(2, fmt.Sprintf(format, args...), times)
 }
 
 func Warn(args ...interface{}) {
@@ -173,6 +183,10 @@ func WarnTimes(times int, args ...interface{}) {
 	std.Log(3, fmt.Sprint(args...), times)
 }
 
+func WarnFTimes(times int, format string, args ...interface{}) {
+	std.Log(3, fmt.Sprintf(format, args...), times)
+}
+
 func Error(args ...interface{}) {
 	std.Log(4, fmt.Sprint(args...), 2)
 }
@@ -183,6 +197,10 @@ func ErrorF(format string, args ...interface{}) {
 
 func ErrorTimes(times int, args ...interface{}) {
 	std.Log(4, fmt.Sprint(args...), times)
+}
+
+func ErrorFTimes(times int, format string, args ...interface{}) {
+	std.Log(4, fmt.Sprintf(format, args...), times)
 }
 
 func Panic(args ...interface{}) {

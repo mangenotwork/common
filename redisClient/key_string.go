@@ -81,7 +81,7 @@ func (c *RedisClient) StringAPPEND(key string, value interface{}) error {
 		return NotConnError
 	}
 	log.InfoTimes(3, "[Redis Log] execute :", "APPEND", key, value)
-	_, err := redis.String(c.Conn.Do("APPEND", key, value))
+	_, err := redis.String(c.Conn.Do("APPEND ", key, value))
 	return err
 }
 
@@ -89,16 +89,35 @@ func (c *RedisClient) StringAPPEND(key string, value interface{}) error {
 // 对 key 所储存的字符串值，设置或清除指定偏移量上的位(bit)。
 // value : 位的设置或清除取决于 value 参数，可以是 0 也可以是 1 。
 // 注意 offset 不能太大，越大key越大
-func (c *RedisClient) StringSETBIT() {}
+func (c *RedisClient) StringSETBIT(key string, offset, value int64) error {
+	if c.Conn == nil {
+		return NotConnError
+	}
+	log.InfoFTimes(3, "[Redis Log] execute : SETBIT %s %d %d", key, offset, value)
+	_, err := c.Conn.Do("SETBIT", key, offset, value)
+	return err
+}
 
 // StringBITCOUNT BITCOUNT key [start] [end]
 // 计算给定字符串中，被设置为 1 的比特位的数量。
-func (c *RedisClient) StringBITCOUNT() {}
+func (c *RedisClient) StringBITCOUNT(key string) (int64, error) {
+	if c.Conn == nil {
+		return 0, NotConnError
+	}
+	log.InfoFTimes(3, "[Redis Log] execute : BITCOUNT %s", key)
+	return redis.Int64(c.Conn.Do("BITCOUNT", key))
+}
 
 // StringGETBIT GETBIT key offset
 // 对 key 所储存的字符串值，获取指定偏移量上的位(bit)。
 // 当 offset 比字符串值的长度大，或者 key 不存在时，返回 0 。
-func (c *RedisClient) StringGETBIT() {}
+func (c *RedisClient) StringGETBIT(key string, offset int64) (int64, error) {
+	if c.Conn == nil {
+		return 0, NotConnError
+	}
+	log.InfoFTimes(3, "[Redis Log] execute : GETBIT %s %d", key, offset)
+	return redis.Int64(c.Conn.Do("GETBIT", key, offset))
+}
 
 // StringBITOP BITOP operation destkey key [key ...]
 // 对一个或多个保存二进制位的字符串 key 进行位元操作，并将结果保存到 destkey 上。
