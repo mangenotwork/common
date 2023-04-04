@@ -91,6 +91,7 @@ var LevelMap = map[Level]string{
 	3: "[WARN]  ",
 	4: "[ERROR] ",
 	5: "[PANIC] ",
+	6: "[Http]",
 }
 
 func (l *logger) Log(level Level, args string, times int) {
@@ -103,9 +104,13 @@ func (l *logger) Log(level Level, args string, times int) {
 	if len(fileList) > 3 {
 		fileList = fileList[len(fileList)-3 : len(fileList)]
 	}
-	buffer.WriteString(strings.Join(fileList, "/"))
-	buffer.WriteString(":")
-	buffer.WriteString(strconv.Itoa(line))
+
+	if times != -1 {
+		buffer.WriteString(strings.Join(fileList, "/"))
+		buffer.WriteString(":")
+		buffer.WriteString(strconv.Itoa(line))
+	}
+
 	buffer.WriteString(" \t| ")
 	buffer.WriteString(args)
 	buffer.WriteString("\n")
@@ -206,4 +211,8 @@ func ErrorFTimes(times int, format string, args ...interface{}) {
 func Panic(args ...interface{}) {
 	std.Log(5, fmt.Sprint(args...), 2)
 	panic(args)
+}
+
+func HttpInfo(args ...interface{}) {
+	std.Log(6, fmt.Sprint(args...), -1)
 }
