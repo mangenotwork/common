@@ -2,6 +2,8 @@ package utils
 
 import (
 	"fmt"
+	"math/rand"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -121,4 +123,20 @@ func IDStr() string {
 
 func IDMd5() string {
 	return Get16MD5Encode(IDStr())
+}
+
+func IDShort() int64 {
+	currWoker := &IdWorker{}
+	currWoker.InitIdWorker(1000, 2)
+	a, _ := currWoker.NextId()
+	a1 := strconv.FormatInt(a, 10)
+	sa := a1[len(a1)-5:]
+	b := time.Now().UnixNano()
+	b1 := strconv.FormatInt(b, 10)
+	sb := b1[len(b1)-10 : len(b1)-6]
+	sc := sa + sb
+	rand.Seed(time.Now().UnixNano())
+	x := rand.Intn(147483647)
+	ids, _ := strconv.Atoi(sc)
+	return int64(ids + x)
 }
