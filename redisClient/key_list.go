@@ -11,35 +11,47 @@ import (
 
 // ListLRANGEALL LRANGE 获取List value
 func (c *RedisClient) ListLRANGEALL(key string) ([]interface{}, error) {
-	if c.Conn == nil {
-		return nil, NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return nil, err
 	}
 	log.InfoFTimes(3, "[Redis Log] execute : LRANGE %s 0 -1", key)
-	return redis.Values(c.Conn.Do("LRANGE", key, 0, -1))
+	return redis.Values(conn.Do("LRANGE", key, 0, -1))
 }
 
 // ListLRANGE LRANGE key start stop
 // 返回列表 key 中指定区间内的元素，区间以偏移量 start 和 stop 指定。
 func (c *RedisClient) ListLRANGE(key string, start, stop int64) ([]interface{}, error) {
-	if c.Conn == nil {
-		return nil, NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return nil, err
 	}
 	arg := redis.Args{}.Add(key).Add(start).Add(stop)
 	log.InfoFTimes(3, "[Redis Log] execute : LRANGE %s %v %v", key, start, stop)
-	return redis.Values(c.Conn.Do("LRANGE", arg...))
+	return redis.Values(conn.Do("LRANGE", arg...))
 }
 
 // ListLPUSH LPUSH 新创建list 将一个或多个值 value 插入到列表 key 的表头
 func (c *RedisClient) ListLPUSH(key string, values []interface{}) error {
-	if c.Conn == nil {
-		return NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return err
 	}
 	args := redis.Args{}.Add(key)
 	for _, value := range values {
 		args = args.Add(value)
 	}
 	log.InfoFTimes(3, "[Redis Log] execute : LPUSH %s %s", key, strings.Join(utils.AnyToStrings(values), " "))
-	_, err := c.Conn.Do("LPUSH", args...)
+	_, err = conn.Do("LPUSH", args...)
 	return err
 }
 
@@ -49,15 +61,19 @@ func (c *RedisClient) ListLPUSH(key string, values []interface{}) error {
 // RPUSH mylist a b c ，得出的结果列表为 a b c ，等同于执行命令 RPUSH mylist a 、 RPUSH mylist b 、 RPUSH mylist c 。
 // 新创建List  将一个或多个值 value 插入到列表 key 的表尾(最右边)。
 func (c *RedisClient) ListRPUSH(key string, values []interface{}) error {
-	if c.Conn == nil {
-		return NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return err
 	}
 	args := redis.Args{}.Add(key)
 	for _, value := range values {
 		args = args.Add(value)
 	}
 	log.InfoFTimes(3, "[Redis Log] execute : RPUSH %s %s", key, strings.Join(utils.AnyToStrings(values), " "))
-	_, err := c.Conn.Do("RPUSH", args...)
+	_, err = conn.Do("RPUSH", args...)
 	return err
 }
 
@@ -79,12 +95,16 @@ func (c *RedisClient) ListBRPOPLPUSH() {}
 // ListLINDEX LINDEX key index
 // 返回列表 key 中，下标为 index 的元素。
 func (c *RedisClient) ListLINDEX(key string, index int64) (string, error) {
-	if c.Conn == nil {
-		return "", NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return "", err
 	}
 	arg := redis.Args{}.Add(key).Add(index)
 	log.InfoFTimes(3, "[Redis Log] execute : LINDEX %s %v", key, index)
-	return redis.String(c.Conn.Do("LINDEX", arg...))
+	return redis.String(conn.Do("LINDEX", arg...))
 }
 
 // ListLINSERT LINSERT key BEFORE|AFTER pivot value
@@ -94,8 +114,12 @@ func (c *RedisClient) ListLINDEX(key string, index int64) (string, error) {
 // 如果 key 不是列表类型，返回一个错误。
 // direction : 方向 bool true:BEFORE(前)    false: AFTER(后)
 func (c *RedisClient) ListLINSERT(direction bool, key, pivot, value string) error {
-	if c.Conn == nil {
-		return NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return err
 	}
 	directionStr := "AFTER"
 	if direction {
@@ -103,7 +127,7 @@ func (c *RedisClient) ListLINSERT(direction bool, key, pivot, value string) erro
 	}
 	arg := redis.Args{}.Add(key).Add(directionStr).Add(pivot).Add(value)
 	log.InfoFTimes(3, "[Redis Log] execute : LINSERT %s %v %v %v", key, directionStr, pivot, value)
-	_, err := c.Conn.Do("LINSERT", arg...)
+	_, err = conn.Do("LINSERT", arg...)
 	return err
 }
 
@@ -111,33 +135,45 @@ func (c *RedisClient) ListLINSERT(direction bool, key, pivot, value string) erro
 // 返回列表 key 的长度。
 // 如果 key 不存在，则 key 被解释为一个空列表，返回 0 .
 func (c *RedisClient) ListLLEN(key string) (int64, error) {
-	if c.Conn == nil {
-		return 0, NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return 0, err
 	}
 	log.InfoFTimes(3, "[Redis Log] execute : LLEN %s", key)
-	return redis.Int64(c.Conn.Do("LLEN", key))
+	return redis.Int64(conn.Do("LLEN", key))
 }
 
 // ListLPOP LPOP key
 // 移除并返回列表 key 的头元素。
 func (c *RedisClient) ListLPOP(key string) (string, error) {
-	if c.Conn == nil {
-		return "", NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return "", err
 	}
 	log.InfoFTimes(3, "[Redis Log] execute : LPOP %s", key)
-	return redis.String(c.Conn.Do("LPOP", key))
+	return redis.String(conn.Do("LPOP", key))
 }
 
 // ListLPUSHX LPUSHX key value
 // 将值 value 插入到列表 key 的表头，当且仅当 key 存在并且是一个列表。
 // 和 LPUSH 命令相反，当 key 不存在时， LPUSHX 命令什么也不做。
 func (c *RedisClient) ListLPUSHX(key string, value interface{}) error {
-	if c.Conn == nil {
-		return NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return err
 	}
 	arg := redis.Args{}.Add(key).Add(value)
 	log.InfoFTimes(3, "[Redis Log] execute : LPUSHX %s %v", key, value)
-	_, err := c.Conn.Do("LPUSHX", arg...)
+	_, err = conn.Do("LPUSHX", arg...)
 	return err
 }
 
@@ -148,12 +184,16 @@ func (c *RedisClient) ListLPUSHX(key string, value interface{}) error {
 // count < 0 : 从表尾开始向表头搜索，移除与 value 相等的元素，数量为 count 的绝对值。
 // count = 0 : 移除表中所有与 value 相等的值。
 func (c *RedisClient) ListLREM(key string, count int64, value interface{}) error {
-	if c.Conn == nil {
-		return NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return err
 	}
 	arg := redis.Args{}.Add(key).Add(count).Add(value)
 	log.InfoFTimes(3, "[Redis Log] execute : LREM %s %v %v", key, count, value)
-	_, err := c.Conn.Do("LREM", arg...)
+	_, err = conn.Do("LREM", arg...)
 	return err
 }
 
@@ -161,12 +201,16 @@ func (c *RedisClient) ListLREM(key string, count int64, value interface{}) error
 // 将列表 key 下标为 index 的元素的值设置为 value 。
 // 当 index 参数超出范围，或对一个空列表( key 不存在)进行 LSET 时，返回一个错误。
 func (c *RedisClient) ListLSET(key string, index int64, value interface{}) error {
-	if c.Conn == nil {
-		return NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return err
 	}
 	arg := redis.Args{}.Add(key).Add(index).Add(value)
 	log.InfoFTimes(3, "[Redis Log] execute : LSET %s %v %v", key, index, value)
-	_, err := c.Conn.Do("LSET", arg...)
+	_, err = conn.Do("LSET", arg...)
 	return err
 }
 
@@ -174,23 +218,31 @@ func (c *RedisClient) ListLSET(key string, index int64, value interface{}) error
 // 对一个列表进行修剪(trim)，就是说，让列表只保留指定区间内的元素，不在指定区间之内的元素都将被删除。
 // 举个例子，执行命令 LTRIM list 0 2 ，表示只保留列表 list 的前三个元素，其余元素全部删除。
 func (c *RedisClient) ListLTRIM(key string, start, stop int64) error {
-	if c.Conn == nil {
-		return NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return err
 	}
 	arg := redis.Args{}.Add(key).Add(start).Add(stop)
 	log.InfoFTimes(3, "[Redis Log] execute : LTRIM %s %v %v", key, start, stop)
-	_, err := c.Conn.Do("LTRIM", arg...)
+	_, err = conn.Do("LTRIM", arg...)
 	return err
 }
 
 // ListRPOP RPOP key
 // 移除并返回列表 key 的尾元素。
 func (c *RedisClient) ListRPOP(key string) (string, error) {
-	if c.Conn == nil {
-		return "", NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return "", err
 	}
 	log.InfoFTimes(3, "[Redis Log] execute : RPOP %s", key)
-	return redis.String(c.Conn.Do("RPOP", key))
+	return redis.String(conn.Do("RPOP", key))
 }
 
 // ListRPOPLPUSH RPOPLPUSH source destination
@@ -203,22 +255,30 @@ func (c *RedisClient) ListRPOP(key string) (string, error) {
 // 如果 source 不存在，值 nil 被返回，并且不执行其他动作。
 // 如果 source 和 destination 相同，则列表中的表尾元素被移动到表头，并返回该元素，可以把这种特殊情况视作列表的旋转(rotation)操作。
 func (c *RedisClient) ListRPOPLPUSH(key, destination string) (string, error) {
-	if c.Conn == nil {
-		return "", NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return "", err
 	}
 	arg := redis.Args{}.Add(key).Add(destination)
 	log.InfoFTimes(3, "[Redis Log] execute : RPOPLPUSH %s %v", key, destination)
-	return redis.String(c.Conn.Do("RPOPLPUSH", arg...))
+	return redis.String(conn.Do("RPOPLPUSH", arg...))
 }
 
 // ListRPUSHX RPUSHX key value
 // 将值 value 插入到列表 key 的表尾，当且仅当 key 存在并且是一个列表。
 func (c *RedisClient) ListRPUSHX(key string, value interface{}) error {
-	if c.Conn == nil {
-		return NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return err
 	}
 	arg := redis.Args{}.Add(key).Add(value)
 	log.InfoFTimes(3, "[Redis Log] execute : RPUSHX %s %v", key, value)
-	_, err := c.Conn.Do("RPUSHX", arg...)
+	_, err = conn.Do("RPUSHX", arg...)
 	return err
 }

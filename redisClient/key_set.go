@@ -13,35 +13,47 @@ import (
 // 返回集合 key 中的所有成员。
 // 获取Set value 返回集合 key 中的所有成员。
 func (c *RedisClient) SetSMEMBERS(key string) ([]interface{}, error) {
-	if c.Conn == nil {
-		return nil, NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return nil, err
 	}
 	log.InfoFTimes(3, "[Redis Log] execute : SMEMBERS %s", key)
-	return redis.Values(c.Conn.Do("SMEMBERS", key))
+	return redis.Values(conn.Do("SMEMBERS", key))
 }
 
 // SetSADD SADD 新创建Set  将一个或多个 member 元素加入到集合 key 当中，已经存在于集合的 member 元素将被忽略。
 func (c *RedisClient) SetSADD(key string, values []interface{}) error {
-	if c.Conn == nil {
-		return NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return err
 	}
 	args := redis.Args{}.Add(key)
 	for _, value := range values {
 		args = args.Add(value)
 	}
 	log.InfoFTimes(3, "[Redis Log] execute : SADD %s %s", key, strings.Join(utils.AnyToStrings(values), " "))
-	_, err := c.Conn.Do("SADD", args...)
+	_, err = conn.Do("SADD", args...)
 	return err
 }
 
 // SetSCARD SCARD key
 // 返回集合 key 的基数(集合中元素的数量)。
 func (c *RedisClient) SetSCARD(key string) error {
-	if c.Conn == nil {
-		return NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return err
 	}
 	log.InfoFTimes(3, "[Redis Log] execute : SCARD %s", key)
-	_, err := redis.Int64(c.Conn.Do("SCARD ", key))
+	_, err = redis.Int64(conn.Do("SCARD ", key))
 	return err
 }
 
@@ -49,15 +61,19 @@ func (c *RedisClient) SetSCARD(key string) error {
 // 返回一个集合的全部成员，该集合是所有给定集合之间的差集。
 // 不存在的 key 被视为空集。
 func (c *RedisClient) SetSDIFF(keys []string) ([]interface{}, error) {
-	if c.Conn == nil {
-		return nil, NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return nil, err
 	}
 	args := redis.Args{}
 	for _, key := range keys {
 		args = args.Add(key)
 	}
 	log.InfoFTimes(3, "[Redis Log] execute : SDIFF %s", strings.Join(keys, " "))
-	return redis.Values(c.Conn.Do("SDIFF", args...))
+	return redis.Values(conn.Do("SDIFF", args...))
 }
 
 // SetSDIFFSTORE SDIFFSTORE destination key [key ...]
@@ -65,30 +81,38 @@ func (c *RedisClient) SetSDIFF(keys []string) ([]interface{}, error) {
 // 如果 destination 集合已经存在，则将其覆盖。
 // destination 可以是 key 本身。
 func (c *RedisClient) SetSDIFFSTORE(key string, keys []string) ([]interface{}, error) {
-	if c.Conn == nil {
-		return nil, NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return nil, err
 	}
 	args := redis.Args{}.Add(key)
 	for _, key := range keys {
 		args = args.Add(key)
 	}
 	log.InfoFTimes(3, "[Redis Log] execute : SDIFFSTORE %s %s", key, strings.Join(keys, " "))
-	return redis.Values(c.Conn.Do("SDIFFSTORE", args...))
+	return redis.Values(conn.Do("SDIFFSTORE", args...))
 }
 
 // SetSINTER SINTER key [key ...]
 // 返回一个集合的全部成员，该集合是所有给定集合的交集。
 // 不存在的 key 被视为空集。
 func (c *RedisClient) SetSINTER(keys []string) ([]interface{}, error) {
-	if c.Conn == nil {
-		return nil, NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return nil, err
 	}
 	args := redis.Args{}
 	for _, key := range keys {
 		args = args.Add(key)
 	}
 	log.InfoFTimes(3, "[Redis Log] execute : SINTER %s", strings.Join(keys, " "))
-	return redis.Values(c.Conn.Do("SINTER", args...))
+	return redis.Values(conn.Do("SINTER", args...))
 }
 
 // SetSINTERSTORE SINTERSTORE destination key [key ...]
@@ -96,15 +120,19 @@ func (c *RedisClient) SetSINTER(keys []string) ([]interface{}, error) {
 // 如果 destination 集合已经存在，则将其覆盖。
 // destination 可以是 key 本身。
 func (c *RedisClient) SetSINTERSTORE(key string, keys []string) ([]interface{}, error) {
-	if c.Conn == nil {
-		return nil, NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return nil, err
 	}
 	args := redis.Args{}.Add(key)
 	for _, k := range keys {
 		args = args.Add(k)
 	}
 	log.InfoFTimes(3, "[Redis Log] execute : SINTERSTORE %s %s", key, strings.Join(keys, " "))
-	return redis.Values(c.Conn.Do("SINTERSTORE", args...))
+	return redis.Values(conn.Do("SINTERSTORE", args...))
 }
 
 // SetSISMEMBER SISMEMBER key member
@@ -112,22 +140,24 @@ func (c *RedisClient) SetSINTERSTORE(key string, keys []string) ([]interface{}, 
 // 返回值:
 // 如果 member 元素是集合的成员，返回 1 。
 // 如果 member 元素不是集合的成员，或 key 不存在，返回 0 。
-func (c *RedisClient) SetSISMEMBER(key string, value interface{}) (resBool bool, err error) {
-	if c.Conn == nil {
-		return false, NotConnError
+func (c *RedisClient) SetSISMEMBER(key string, value interface{}) (bool, error) {
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return false, err
 	}
 	log.InfoFTimes(3, "[Redis Log] execute : SISMEMBER %s %v", key, value)
-	resBool = false
 	arg := redis.Args{}.Add(key).Add(value)
-	res, err := redis.Int64(c.Conn.Do("SISMEMBER", arg...))
+	res, err := redis.Int64(conn.Do("SISMEMBER", arg...))
 	if err != nil {
-		return
+		return false, err
 	}
 	if res == 1 {
-		resBool = true
-		return
+		return true, nil
 	}
-	return
+	return false, nil
 }
 
 // SetSMOVE SMOVE source destination member
@@ -138,32 +168,38 @@ func (c *RedisClient) SetSISMEMBER(key string, value interface{}) (resBool bool,
 // 当 destination 集合已经包含 member 元素时， SMOVE 命令只是简单地将 source 集合中的 member 元素删除。
 // 当 source 或 destination 不是集合类型时，返回一个错误。
 // 返回值: 成功移除，返回 1 。失败0
-func (c *RedisClient) SetSMOVE(key, destination string, member interface{}) (resBool bool, err error) {
-	if c.Conn == nil {
-		return false, NotConnError
+func (c *RedisClient) SetSMOVE(key, destination string, member interface{}) (bool, error) {
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return false, err
 	}
 	log.InfoFTimes(3, "[Redis Log] execute : SMOVE %s %v %v", key, destination, member)
-	resBool = false
 	arg := redis.Args{}.Add(key).Add(destination).Add(member)
-	res, err := redis.Int64(c.Conn.Do("SMOVE", arg...))
+	res, err := redis.Int64(conn.Do("SMOVE", arg...))
 	if err != nil {
-		return
+		return false, err
 	}
 	if res == 1 {
-		resBool = true
-		return
+		return true, nil
 	}
-	return
+	return false, nil
 }
 
 // SetSPOP SPOP key
 // 移除并返回集合中的一个随机元素。
 func (c *RedisClient) SetSPOP(key string) (string, error) {
-	if c.Conn == nil {
-		return "", NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return "", err
 	}
 	log.InfoFTimes(3, "[Redis Log] execute : SPOP %s", key)
-	return redis.String(c.Conn.Do("SPOP", key))
+	return redis.String(conn.Do("SPOP", key))
 }
 
 // SetSRANDMEMBER SRANDMEMBER key [count]
@@ -172,55 +208,71 @@ func (c *RedisClient) SetSPOP(key string) (string, error) {
 // 如果 count 大于等于集合基数，那么返回整个集合。
 // 如果 count 为负数，那么命令返回一个数组，数组中的元素可能会重复出现多次，而数组的长度为 count 的绝对值。
 func (c *RedisClient) SetSRANDMEMBER(key string, count int64) ([]interface{}, error) {
-	if c.Conn == nil {
-		return nil, NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return nil, err
 	}
 	arg := redis.Args{}.Add(key).Add(count)
 	log.InfoFTimes(3, "[Redis Log] execute : SRANDMEMBER %s %v", key, count)
-	return redis.Values(c.Conn.Do("SRANDMEMBER", arg...))
+	return redis.Values(conn.Do("SRANDMEMBER", arg...))
 }
 
 // SetSREM SREM key member [member ...]
 // 移除集合 key 中的一个或多个 member 元素，不存在的 member 元素会被忽略。
 func (c *RedisClient) SetSREM(key string, member []interface{}) error {
-	if c.Conn == nil {
-		return NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return err
 	}
 	args := redis.Args{}.Add(key)
 	for _, v := range member {
 		args = args.Add(v)
 	}
 	log.InfoFTimes(3, "[Redis Log] execute : SREM %s %s", key, strings.Join(utils.AnyToStrings(member), " "))
-	_, err := c.Conn.Do("SREM", args...)
+	_, err = conn.Do("SREM", args...)
 	return err
 }
 
 // SetSUNION SUNION key [key ...]
 // 返回一个集合的全部成员，该集合是所有给定集合的并集。
 func (c *RedisClient) SetSUNION(keys []string) ([]interface{}, error) {
-	if c.Conn == nil {
-		return nil, NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return nil, err
 	}
 	args := redis.Args{}
 	for _, v := range keys {
 		args = args.Add(v)
 	}
 	log.InfoFTimes(3, "[Redis Log] execute : SUNION %s", strings.Join(keys, " "))
-	return redis.Values(c.Conn.Do("SUNION", args...))
+	return redis.Values(conn.Do("SUNION", args...))
 }
 
 // SetSUNIONSTORE SUNIONSTORE destination key [key ...]
 // 这个命令类似于 SUNION 命令，但它将结果保存到 destination 集合，而不是简单地返回结果集。
 func (c *RedisClient) SetSUNIONSTORE(key string, keys []string) ([]interface{}, error) {
-	if c.Conn == nil {
-		return nil, NotConnError
+	conn, err := GetConn(c.Name)
+	defer func() {
+		_ = conn.Close()
+	}()
+	if err != nil {
+		return nil, err
 	}
 	args := redis.Args{}.Add(key)
 	for _, v := range keys {
 		args = args.Add(v)
 	}
 	log.InfoFTimes(3, "[Redis Log] execute : SUNIONSTORE %s %s", key, strings.Join(keys, " "))
-	return redis.Values(c.Conn.Do("SUNIONSTORE", args...))
+	return redis.Values(conn.Do("SUNIONSTORE", args...))
 }
 
 // 搜索值  SSCAN key cursor [MATCH pattern] [COUNT count]

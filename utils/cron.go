@@ -34,7 +34,7 @@ func (c *Cron) add(spec string, f func()) {
 func (c *Cron) AddAtMinute(f func(), i int) {
 	spec := "* * * * *"
 	if i > 0 && i < 60 {
-		spec = fmt.Sprintf("* /%d * * *", i)
+		spec = fmt.Sprintf("*/%d * * * *", i)
 	}
 	c.add(spec, f)
 }
