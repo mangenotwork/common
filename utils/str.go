@@ -615,3 +615,8 @@ func DeepEqual(a, b interface{}) bool {
 	}
 	return reflect.DeepEqual(ra.Interface(), rb.Interface())
 }
+
+// StrLen 获取字符长度
+func StrLen(str string) int {
+	return utf8.RuneCountInString(str)
+}
