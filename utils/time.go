@@ -23,6 +23,18 @@ func BeginDayUnix() int64 {
 	return t.Unix()
 }
 
+func NowDate() string {
+	return time.Now().Format("2006-01-02 15:04:05")
+}
+
+func NowDateYMD() string {
+	return time.Now().Format("2006-01-02")
+}
+
+func NowDateHMS() string {
+	return time.Now().Format("15:04:05")
+}
+
 // EndDayUnix 获取当天 24点
 func EndDayUnix() int64 {
 	timeStr := time.Now().Format("2006-01-02")
@@ -43,6 +55,15 @@ func HourAgo(i int) int64 {
 // DayAgo 获取多少天前的时间戳
 func DayAgo(i int) int64 {
 	return time.Now().Unix() - int64(i*3600*24)
+}
+
+// DayAgoDate 获取多少天前的时间戳
+func DayAgoDate(i int) string {
+	return time.Unix(time.Now().Unix()-int64(i*3600*24), 0).Format("2006-01-02 15:04:05")
+}
+
+func DayAgoDateYMD(i int) string {
+	return time.Unix(time.Now().Unix()-int64(i*3600*24), 0).Format("2006-01-02")
 }
 
 // DayDiff 两个时间字符串的日期差
@@ -331,4 +352,17 @@ func Timestamp2WeekXinQi(timestamp int64) string {
 		return "星期六"
 	}
 	return "星期一"
+}
+
+// LatestDate 最近好多天
+func LatestDate(date int) []string {
+	outList := make([]string, 0)
+	now := time.Now()
+	outList = append(outList, now.Format("2006-01-02"))
+	nowInt := now.Unix()
+	for i := 0; i < date; i++ {
+		nowInt -= 86400
+		outList = append(outList, time.Unix(nowInt, 0).Format("2006-01-02"))
+	}
+	return outList
 }
