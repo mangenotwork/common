@@ -8,8 +8,20 @@ import (
 	"github.com/mangenotwork/common/log"
 )
 
-const TimeTemplate = "2006-01-02 15:04:05"
-const TimeMilliTemplate = "2006-01-02 15:04:05.000"
+const (
+	TimeTemplate = "2006-01-02 15:04:05"
+
+	TimeMilliTemplate = "2006-01-02 15:04:05.000"
+
+	// 定义每分钟的秒数
+	SecondsPerMinute = 60
+
+	// 定义每小时的秒数
+	SecondsPerHour = SecondsPerMinute * 60
+
+	// 定义每天的秒数
+	SecondsPerDay = SecondsPerHour * 24
+)
 
 // Timestamp 获取时间戳
 func Timestamp() string {
@@ -75,6 +87,44 @@ func DayDiff(beginDay string, endDay string) int {
 	return int(diff / (24 * 60 * 60))
 }
 
+// ResolveTime 将传入的“秒”解析为3种时间单位
+func ResolveTime(seconds int) (day int, hour int, minute int, sy int) {
+	day = seconds / SecondsPerDay
+	dayY := seconds % SecondsPerDay
+	hour = dayY / SecondsPerHour
+	hourY := dayY % SecondsPerHour
+	minute = hourY / SecondsPerMinute
+	sy = hourY % SecondsPerMinute
+	return
+}
+
+func ResolveTimeStr(seconds int) string {
+	str := ""
+	day, hour, minute, s := ResolveTime(seconds)
+	if day > 0 {
+		str += fmt.Sprintf("%d天", day)
+	}
+	if hour > 0 {
+		str += fmt.Sprintf("%d时", hour)
+	}
+	if minute > 0 {
+		str += fmt.Sprintf("%d分", minute)
+	}
+	if s > 0 {
+		str += fmt.Sprintf("%d秒", s)
+	}
+	return str
+}
+
+// 当前时间戳在今天是否结束
+func Deadline(timestamp int64) string {
+	deadline := timestamp - time.Now().Unix()
+	if deadline < 0 {
+		return "已结束"
+	}
+	return ResolveTimeStr(int(deadline)) + "后结束"
+}
+
 // TickerRun 间隔运行
 // t: 间隔时间， runFirst: 间隔前或者后执行  f: 运行的方法
 func TickerRun(t time.Duration, runFirst bool, f func()) {
@@ -90,6 +140,11 @@ func TickerRun(t time.Duration, runFirst bool, f func()) {
 func Timestamp2Date(timestamp int64) string {
 	tm := time.Unix(timestamp, 0)
 	return tm.Format(TimeTemplate)
+}
+
+func Date2Timestamp(date string) int64 {
+	tim, _ := time.ParseInLocation(TimeTemplate, date, time.Local)
+	return tim.Unix()
 }
 
 // 时间的基本配置

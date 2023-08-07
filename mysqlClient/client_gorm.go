@@ -62,3 +62,7 @@ func GetGorm(name string) *gorm.DB {
 func SetGorm(c *gorm.DB, name string) {
 	MysqlGorm[name] = c
 }
+
+func Expr(expression string, args ...interface{}) *gorm.SqlExpr {
+	return gorm.Expr(expression, args...)
+}
