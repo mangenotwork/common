@@ -43,6 +43,7 @@ type DefaultConf struct {
 	Jwt        *Jwt        `yaml:"jwt"`
 	Minio      *Minio      `yaml:"minio"`
 	Mq         string      `yaml:"mq"`
+	User       []*User     `yaml:"user"`
 }
 
 // App app相关基础信息
@@ -164,6 +165,12 @@ type Minio struct {
 	Host   string `yaml:"host"`
 	Access string `yaml:"access"`
 	Secret string `yaml:"secret"`
+}
+
+// User 默认用户
+type User struct {
+	Name     string `yaml:"name"`
+	Password string `yaml:"password"`
 }
 
 // InitConf 读取yaml文件 获取配置, 常用于 func init() 中
