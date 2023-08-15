@@ -1,7 +1,11 @@
 package ginHelper
 
 import (
+	"fmt"
+	"github.com/mangenotwork/common/log"
+	"github.com/mangenotwork/common/utils"
 	"net/http"
+	"sort"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -68,6 +72,85 @@ func (ctx *GinCtx) AuthErrorOut() {
 // GetPostArgs 获取参数
 func (ctx *GinCtx) GetPostArgs(obj interface{}) error {
 	return ctx.Context.BindJSON(obj)
+}
+
+func (ctx *GinCtx) GetParam(key string) string {
+	return ctx.Context.Param(key)
+}
+
+func (ctx *GinCtx) GetParamInt(key string) int {
+	v := ctx.Context.Param(key)
+	return utils.AnyToInt(v)
+}
+
+func (ctx *GinCtx) GetParamInt64(key string) int64 {
+	v := ctx.Context.Param(key)
+	return utils.AnyToInt64(v)
+}
+
+func (ctx *GinCtx) GetQuery(key string) string {
+	v, _ := ctx.Context.GetQuery(key)
+	return v
+}
+
+func (ctx *GinCtx) GetQueryInt(key string) int {
+	v, _ := ctx.Context.GetQuery(key)
+	return utils.AnyToInt(v)
+}
+
+func (ctx *GinCtx) GetQueryInt64(key string) int64 {
+	v, _ := ctx.Context.GetQuery(key)
+	return utils.AnyToInt64(v)
+}
+
+type Page struct {
+	Number int
+	Action bool
+	Url    string
+}
+
+func (ctx *GinCtx) PageListInt(pg, number, count, size int) []int {
+	pgs := make([]int, 0)
+	temp1 := pg
+	temp2 := pg
+
+	has := (count / size) + 1
+	log.Info("has = ", has)
+	if has >= number {
+		has = number
+	}
+
+	for i := 0; i < has; i++ {
+		if int(pg)-i > int(pg)-2 && int(pg)-i > 1 {
+			temp1 = temp1 - 1
+			pgs = append(pgs, int(temp1))
+		} else {
+			pgs = append(pgs, int(temp2))
+			temp2 = temp2 + 1
+		}
+	}
+	sort.Ints(pgs)
+	return pgs
+}
+
+// PageList urlTemp = /a?pg=%d
+func (ctx *GinCtx) PageList(pg, number, count, size int, urlTemp string) []*Page {
+	pgIntList := ctx.PageListInt(pg, number, count, size)
+	list := make([]*Page, 0)
+	for _, i := range pgIntList {
+		p := &Page{
+			Number: i,
+			Action: false,
+		}
+		if p.Number == pg {
+			p.Action = true
+		}
+		if len(urlTemp) > 0 {
+			p.Url = fmt.Sprintf(urlTemp, p.Number)
+		}
+		list = append(list, p)
+	}
+	return list
 }
 
 // ResponseJson 统一接口输出
