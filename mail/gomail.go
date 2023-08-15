@@ -36,6 +36,18 @@ func NewMail(host, from, auth string, port int) *Mail {
 	return m
 }
 
+func (m *Mail) Conn() *Mail {
+	m.C = gomail.NewDialer(
+		m.Host,
+		m.Port,
+		m.From,
+		m.AuthCode,
+	)
+	m.Msg = gomail.NewMessage()
+	m.Msg.SetHeader("From", m.From)
+	return m
+}
+
 func (m *Mail) Title(title string) *Mail {
 	m.Msg.SetHeader("Subject", title)
 	return m

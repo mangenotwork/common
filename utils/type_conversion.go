@@ -217,6 +217,12 @@ func AnyToJson(data interface{}) (string, error) {
 	return string(jsonStr), err
 }
 
+// AnyToJsonB interface{} -> json string
+func AnyToJsonB(data interface{}) ([]byte, error) {
+	jsonStr, err := json.Marshal(data)
+	return jsonStr, err
+}
+
 // IntToHex int -> hex
 func IntToHex(i int) string {
 	return fmt.Sprintf("%x", i)

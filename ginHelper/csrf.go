@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/csrf"
 	adapter "github.com/gwatts/gin-adapter"
+	"github.com/mangenotwork/common/log"
 	"html/template"
 	"net/http"
 )
@@ -28,7 +29,9 @@ func CSRFMiddleware() gin.HandlerFunc {
 		csrf.HttpOnly(true),
 		csrf.CookieName(CsrfName),
 		csrf.FieldName(CsrfName),
+		csrf.RequestHeader(CsrfName),
 		csrf.ErrorHandler(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+			log.Info(request.URL.Path)
 			writer.WriteHeader(http.StatusForbidden)
 			writer.Write([]byte(`非法请求!`))
 		})),
@@ -39,7 +42,17 @@ func CSRFMiddleware() gin.HandlerFunc {
 
 func CSRFTokenMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Header("cToken", csrf.Token(c.Request))
+		token := csrf.Token(c.Request)
+		log.Info("token = ", token)
+		c.Header(CsrfName, token)
+	}
+}
+
+func SetCSRFTokenMiddleware(key string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token := csrf.Token(c.Request)
+		c.Header(key, token)
+		c.SetCookie(key, token, 3600*24, "/", "", false, false)
 	}
 }
 

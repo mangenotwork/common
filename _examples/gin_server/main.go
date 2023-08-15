@@ -24,5 +24,5 @@ func Routers() *gin.Engine {
 }
 
 func Home(c *ginHelper.GinCtx) {
-	c.APIOutPut(0, "ok", "")
+	c.APIOutPut("ok", "")
 }
