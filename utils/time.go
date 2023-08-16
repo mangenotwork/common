@@ -47,6 +47,10 @@ func NowDateHMS() string {
 	return time.Now().Format("15:04:05")
 }
 
+func NowDateLayout(layout string) string {
+	return time.Now().Format(layout)
+}
+
 // EndDayUnix 获取当天 24点
 func EndDayUnix() int64 {
 	timeStr := time.Now().Format("2006-01-02")

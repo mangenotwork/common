@@ -620,3 +620,8 @@ func DeepEqual(a, b interface{}) bool {
 func StrLen(str string) int {
 	return utf8.RuneCountInString(str)
 }
+
+func RandomString(list []string) string {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	return list[r.Intn(len(list))]
+}

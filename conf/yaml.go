@@ -246,7 +246,7 @@ func YamlGet(key string) (interface{}, bool) {
 	return d, ok
 }
 
-// :: 区分
+// YamlGetString  区分
 func YamlGetString(key string) (string, error) {
 	data, ok := YamlGet(key)
 	if ok {
