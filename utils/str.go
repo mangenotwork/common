@@ -625,3 +625,14 @@ func RandomString(list []string) string {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	return list[r.Intn(len(list))]
 }
+
+func URIStr(url string) string {
+	l := len(url)
+	if l < 1 {
+		panic("url is null")
+	}
+	if l > 8 && (url[:7] == "http://" || url[:8] == "https://") {
+		return url
+	}
+	return "https://" + url
+}
