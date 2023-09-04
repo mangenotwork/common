@@ -71,7 +71,7 @@ func (ctx *GinCtx) AuthErrorOut() {
 
 // GetPostArgs 获取参数
 func (ctx *GinCtx) GetPostArgs(obj interface{}) error {
-	return ctx.Context.BindJSON(obj)
+	return ctx.Context.ShouldBindJSON(obj)
 }
 
 func (ctx *GinCtx) GetParam(key string) string {
