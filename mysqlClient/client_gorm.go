@@ -3,12 +3,12 @@ package mysqlClient
 import (
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/mangenotwork/common/conf"
-
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/jinzhu/gorm"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
 )
 
 var MysqlGorm map[string]*gorm.DB
@@ -40,13 +40,12 @@ func NewORM(database, user, password, host, port string, disablePrepared bool) (
 	if disablePrepared {
 		str = str + "&interpolateParams=true"
 	}
-	for orm, err = gorm.Open("mysql", str); err != nil; {
-		log.Println(fmt.Sprintf("[DB]-[%v] 连接异常:%v，正在重试: %v", database, err, str))
-		time.Sleep(5 * time.Second)
-		orm, err = gorm.Open("mysql", str)
-	}
-	orm.LogMode(true)
-	orm.CommonDB()
+	orm, err = gorm.Open(mysql.Open(str), &gorm.Config{
+		NamingStrategy: schema.NamingStrategy{
+			SingularTable: true,
+		},
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	return orm, err
 }
 
@@ -61,8 +60,4 @@ func GetGorm(name string) *gorm.DB {
 
 func SetGorm(c *gorm.DB, name string) {
 	MysqlGorm[name] = c
-}
-
-func Expr(expression string, args ...interface{}) *gorm.SqlExpr {
-	return gorm.Expr(expression, args...)
 }
