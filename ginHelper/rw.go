@@ -2,7 +2,6 @@ package ginHelper
 
 import (
 	"fmt"
-	"github.com/mangenotwork/common/log"
 	"github.com/mangenotwork/common/utils"
 	"net/http"
 	"sort"
@@ -29,6 +28,12 @@ func Handle(h HandlerFunc) gin.HandlerFunc {
 // GinCtx 给gin context 扩展方法
 type GinCtx struct {
 	*gin.Context
+}
+
+func NewGinCtx() *GinCtx {
+	return &GinCtx{
+		&gin.Context{},
+	}
 }
 
 func (ctx *GinCtx) APIOutPut(data interface{}, msg string) {
@@ -61,7 +66,7 @@ func (ctx *GinCtx) APIOutPutError(err error, msg string) {
 // AuthErrorOut 鉴权失败
 func (ctx *GinCtx) AuthErrorOut() {
 	ctx.IndentedJSON(http.StatusForbidden, ResponseJson{
-		Code:      AuthErrorCode,
+		Code:      TokenInvalid,
 		Msg:       "鉴权失败,请前往登录!",
 		Date:      "",
 		TimeStamp: time.Now().Unix(),
@@ -115,17 +120,16 @@ func (ctx *GinCtx) PageListInt(pg, number, count, size int) []int {
 	temp2 := pg
 
 	has := (count / size) + 1
-	log.Info("has = ", has)
 	if has >= number {
 		has = number
 	}
 
 	for i := 0; i < has; i++ {
-		if int(pg)-i > int(pg)-2 && int(pg)-i > 1 {
+		if pg-i > pg-2 && pg-i > 1 {
 			temp1 = temp1 - 1
-			pgs = append(pgs, int(temp1))
+			pgs = append(pgs, temp1)
 		} else {
-			pgs = append(pgs, int(temp2))
+			pgs = append(pgs, temp2)
 			temp2 = temp2 + 1
 		}
 	}
@@ -153,20 +157,6 @@ func (ctx *GinCtx) PageList(pg, number, count, size int, urlTemp string) []*Page
 	return list
 }
 
-// ResponseJson 统一接口输出
-type ResponseJson struct {
-	Code      int64       `json:"code"` // succeed:0  err:1
-	Msg       string      `json:"msg"`
-	Date      interface{} `json:"data"`
-	TimeStamp int64       `json:"timeStamp"`
-}
-
-const (
-	SuccessCode   int64 = 0
-	ErrorCode     int64 = 1
-	AuthErrorCode int64 = 403
-)
-
 // APIOutPut 统一接口输出方法
 func APIOutPut(c *gin.Context, msg string, data interface{}) {
 	c.IndentedJSON(http.StatusOK, ResponseJson{
@@ -192,7 +182,7 @@ func APIOutPutError(c *gin.Context, msg string) {
 // AuthErrorOut 鉴权失败
 func AuthErrorOut(c *gin.Context) {
 	c.IndentedJSON(http.StatusForbidden, ResponseJson{
-		Code:      AuthErrorCode,
+		Code:      TokenInvalid,
 		Msg:       "鉴权失败,请前往登录!",
 		Date:      "",
 		TimeStamp: time.Now().Unix(),
@@ -200,7 +190,23 @@ func AuthErrorOut(c *gin.Context) {
 	return
 }
 
-// GetPostArgs 获取参数
-func GetPostArgs(c *gin.Context, obj interface{}) error {
-	return c.BindJSON(obj)
+func (ctx *GinCtx) GetIP() string {
+	if ip, ok := ctx.Get(ReqIP); ok {
+		return ip.(string)
+	}
+	return ""
+}
+
+func (ctx *GinCtx) GetLang() string {
+	if lang, ok := ctx.Get(Lang); ok {
+		return lang.(string)
+	}
+	return ""
+}
+
+func (ctx *GinCtx) GetSource() string {
+	if source, ok := ctx.Get(Source); ok {
+		return source.(string)
+	}
+	return ""
 }

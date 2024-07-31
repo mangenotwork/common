@@ -61,3 +61,40 @@ func GetGorm(name string) *gorm.DB {
 func SetGorm(c *gorm.DB, name string) {
 	MysqlGorm[name] = c
 }
+
+type Page struct {
+	Page  int `json:"page"`
+	Limit int `json:"limit"`
+}
+
+func NewPage(page, limit int) *Page {
+	return &Page{
+		Page:  page,
+		Limit: limit,
+	}
+}
+
+// Pagination 分页
+func (page *Page) Pagination() func(db *gorm.DB) *gorm.DB {
+	if page.Page < 1 {
+		page.Page = 1
+	}
+	if page.Limit < 1 {
+		page.Limit = 10
+	}
+	offset := (page.Page - 1) * page.Limit
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Offset(offset).Limit(page.Limit)
+	}
+}
+
+func (page *Page) String() string {
+	if page.Page < 1 {
+		page.Page = 1
+	}
+	if page.Limit < 1 {
+		page.Limit = 10
+	}
+	offset := (page.Page - 1) * page.Limit
+	return fmt.Sprintf("limit %d offset %d ", page.Limit, offset)
+}
